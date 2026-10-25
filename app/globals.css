@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #fdfbf7; /* Warm light cream */
+    --foreground: #1c1917; /* Deep neutral dark */
+    --primary: #ca8a04;    /* Dim Yellow / Amber */
+    --primary-hover: #a16207;
+    --card-bg: #ffffff;
+    --border-color: #e7e5e4;
+    --muted: #78716c;
+  }
+
+  .dark {
+    --background: #121212; /* Rich dark mode background */
+    --foreground: #f5f5f4; /* Light cream text */
+    --primary: #eab308;    /* Normal/Bright Yellow */
+    --primary-hover: #ca8a04;
+    --card-bg: #1c1917;
+    --border-color: #292524;
+    --muted: #a8a29e;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* Custom Utility Classes for Skin/Theme Colors */
+.bg-skin-base { background-color: var(--background); }
+.bg-skin-card { background-color: var(--card-bg); }
+.text-skin-base { color: var(--foreground); }
+.text-skin-muted { color: var(--muted); }
+.border-skin-base { border-color: var(--border-color); }
+.bg-brand-yellow { background-color: var(--primary); }
+.bg-brand-yellow:hover { background-color: var(--primary-hover); }
+.text-brand-yellow { color: var(--primary); }
