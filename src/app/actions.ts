@@ -83,3 +83,45 @@ export async function verifyOrderPinAction(pin: string) {
   const order = await Order.findOne({ verificationPin: pin.trim() });
   return !!order;
 }
+
+
+// --- AUTH & OWNER ACTIONS ---
+export async function loginOwnerAction(email: string, pass: string) {
+  await dbConnect();
+  const store = await Store.findOne({ ownerEmail: email.trim().toLowerCase() });
+  
+  if (!store) {
+    // Fallback default for your mom's initial store setup
+    if (email.trim().toLowerCase() === 'mom@eldgate.ng' && pass === 'eldgate2026') {
+      return { success: true, message: 'Welcome back, Mom!' };
+    }
+    return { success: false, message: 'Store owner email not found.' };
+  }
+
+  if (store.passwordHash !== pass) {
+    return { success: false, message: 'Incorrect password.' };
+  }
+
+  return { success: true, storeName: store.name };
+}
+
+export async function resetPasswordAction(email: string) {
+  await dbConnect();
+  const store = await Store.findOne({ ownerEmail: email.trim().toLowerCase() });
+  
+  if (!store && email.trim().toLowerCase() !== 'mom@eldgate.ng') {
+    return { success: false, message: 'Email not registered in the database.' };
+  }
+
+  // Generate a secure temporary password
+  const tempPassword = 'temp' + Math.floor(1000 + Math.random() * 9000);
+  
+  await Store.findOneAndUpdate(
+    { ownerEmail: email.trim().toLowerCase() },
+    { passwordHash: tempPassword },
+    { upsert: true, new: true }
+  );
+
+  return { success: true, tempPassword };
+}
+

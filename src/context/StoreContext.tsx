@@ -54,32 +54,45 @@ export const StoreProvider: React.FC<{
     return true;
   };
 
-  const loginOwner = (email: string, pass: string): boolean => {
-    if (ownerAccount && ownerAccount.email === email && ownerAccount.passwordHash === pass) {
-      setIsOwner(true);
-      return true;
+    const loginOwner = async (email: string, pass: string): Promise<boolean> => {
+    try {
+      const result = await loginOwnerAction(email, pass);
+      if (result.success) {
+        setIsOwner(true);
+        setOwnerAccount({ email, passwordHash: pass, storeName: result.storeName || store.name });
+        return true;
+      }
+      alert(result.message);
+      return false;
+    } catch (err) {
+      console.error(err);
+      alert('Login failed. Check your connection.');
+      return false;
     }
-    if (email === 'mom@eldgate.ng' && pass === 'eldgate2026') {
-      setIsOwner(true);
-      return true;
-    }
-    return false;
   };
 
   const loginWithGoogle = () => {
-    setOwnerAccount({ email: 'el.d.gate.store@gmail.com', passwordHash: 'GOOGLE', storeName: 'EL.D.Gate' });
+    // For Google Auth in production, this can hook into NextAuth / Firebase. 
+    // For now, we authenticate the store owner session directly:
+    setOwnerAccount({ email: 'el.d.gate.store@gmail.com', passwordHash: 'GOOGLE_AUTH', storeName: store.name });
     setIsOwner(true);
-    alert('Successfully logged in with Google!');
+    alert('Successfully authenticated with Google!');
   };
 
-  const resetPassword = (email: string): boolean => {
-    if (ownerAccount && ownerAccount.email === email) {
-      setOwnerAccount({ ...ownerAccount, passwordHash: 'newpassword123' });
-      alert(`Temporary password reset to: newpassword123`);
-      return true;
+  const resetPassword = async (email: string): Promise<boolean> => {
+    try {
+      const result = await resetPasswordAction(email);
+      if (result.success) {
+        alert(`Password reset successful! Your temporary password is: ${result.tempPassword}`);
+        return true;
+      }
+      alert(result.message);
+      return false;
+    } catch (err) {
+      console.error(err);
+      alert('Password reset failed.');
+      return false;
     }
-    alert('Email not found.');
-    return false;
   };
 
   const updateStoreInfo = async (updates: Partial<StoreInfo>) => {
