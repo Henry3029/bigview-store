@@ -2,6 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Item, StoreInfo, Order, CartItem, UserAccount } from '@/types';
+import { 
+  getItems, addItemAction, updateItemAction, deleteItemAction, 
+  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction 
+} from '@/app/actions';
 
 interface StoreContextType {
   store: StoreInfo;
@@ -15,71 +19,37 @@ interface StoreContextType {
   loginOwner: (email: string, pass: string) => boolean;
   loginWithGoogle: () => void;
   resetPassword: (email: string) => boolean;
-  updateStoreInfo: (info: Partial<StoreInfo>) => void;
-  addItem: (item: Omit<Item, 'id' | 'createdAt'>) => void;
-  updateItem: (id: string, updates: Partial<Item>) => void;
-  deleteItem: (id: string) => void;
+  updateStoreInfo: (info: Partial<StoreInfo>) => Promise<void>;
+  addItem: (item: Omit<Item, 'id' | 'createdAt'>) => Promise<void>;
+  updateItem: (id: string, updates: Partial<Item>) => Promise<void>;
+  deleteItem: (id: string) => Promise<void>;
   addToCart: (item: Item) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
-  placeOrder: (customerName: string, customerPhone: string) => Order;
-  verifyOrderPin: (pin: string) => boolean;
+  placeOrder: (customerName: string, customerPhone: string) => Promise<Order>;
+  verifyOrderPin: (pin: string) => Promise<boolean>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Persist registered account in localStorage so it stays secure between refreshes
-  const [ownerAccount, setOwnerAccount] = useState<UserAccount | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('bigview_owner');
-      if (saved) return JSON.parse(saved);
-    }
-    // Default initial test account if none exists yet
-    return { email: 'mom@eldgate.ng', passwordHash: 'eldgate2026', storeName: 'EL.D.Gate' };
-  });
-
-  const [store, setStore] = useState<StoreInfo>({
-    name: ownerAccount?.storeName || 'EL.D.Gate',
-    bannerUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
-    profileUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    ownerEmail: ownerAccount?.email || 'mom@eldgate.ng',
-  });
-
-    const [items, setItems] = useState<Item[]>([
-    { 
-      id: '1', 
-      name: 'Premium Imported Rice (50kg)', 
-      price: 45000, 
-      imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80', 
-      category: 'Groceries', 
-      createdAt: '2026-10-25T00:00:00.000Z' 
-    },
-    { 
-      id: '2', 
-      name: 'Designer Leather Shoe', 
-      price: 2800, 
-      imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80', 
-      category: 'Fashion', 
-      createdAt: '2026-10-25T00:00:00.000Z' 
-    },
-  ]);
-
-
+export const StoreProvider: React.FC<{ 
+  children: React.ReactNode; 
+  initialItems: Item[]; 
+  initialStore: StoreInfo; 
+}> = ({ children, initialItems, initialStore }) => {
+  const [store, setStore] = useState<StoreInfo>(initialStore);
+  const [items, setItems] = useState<Item[]>(initialItems);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isOwner, setIsOwner] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (ownerAccount) {
-      localStorage.setItem('bigview_owner', JSON.stringify(ownerAccount));
-      setStore(prev => ({ ...prev, name: ownerAccount.storeName, ownerEmail: ownerAccount.email }));
-    }
-  }, [ownerAccount]);
+  const [ownerAccount, setOwnerAccount] = useState<UserAccount | null>({
+    email: initialStore.ownerEmail || 'mom@eldgate.ng',
+    passwordHash: 'eldgate2026',
+    storeName: initialStore.name || 'EL.D.Gate',
+  });
 
   const registerOwner = (email: string, pass: string, storeName: string): boolean => {
-    const newAcc: UserAccount = { email, passwordHash: pass, storeName };
-    setOwnerAccount(newAcc);
+    setOwnerAccount({ email, passwordHash: pass, storeName });
     setIsOwner(true);
     return true;
   };
@@ -89,7 +59,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsOwner(true);
       return true;
     }
-    // Fallback default
     if (email === 'mom@eldgate.ng' && pass === 'eldgate2026') {
       setIsOwner(true);
       return true;
@@ -98,45 +67,52 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const loginWithGoogle = () => {
-    // Industrial standard simulated Google OAuth popup/redirect login
-    const googleEmail = 'el.d.gate.store@gmail.com';
-    const googleStoreName = 'EL.D.Gate';
-    setOwnerAccount({ email: googleEmail, passwordHash: 'GOOGLE_OAUTH_USER', storeName: googleStoreName });
+    setOwnerAccount({ email: 'el.d.gate.store@gmail.com', passwordHash: 'GOOGLE', storeName: 'EL.D.Gate' });
     setIsOwner(true);
     alert('Successfully logged in with Google!');
   };
 
   const resetPassword = (email: string): boolean => {
     if (ownerAccount && ownerAccount.email === email) {
-      alert(`Password reset link has been sent to ${email}. (For this demo, your temporary password is reset to: 'newpassword123')`);
       setOwnerAccount({ ...ownerAccount, passwordHash: 'newpassword123' });
+      alert(`Temporary password reset to: newpassword123`);
       return true;
     }
-    alert('Email address not found in BIGVIEW registry.');
+    alert('Email not found.');
     return false;
   };
 
-  const updateStoreInfo = (updates: Partial<StoreInfo>) => {
+  const updateStoreInfo = async (updates: Partial<StoreInfo>) => {
+    const newName = updates.name || store.name;
+    const newBanner = updates.bannerUrl || store.bannerUrl;
+    const newProfile = updates.profileUrl || store.profileUrl;
+
+    await updateStoreBranding(newName, newBanner, newProfile);
     setStore(prev => ({ ...prev, ...updates }));
-    if (updates.name && ownerAccount) {
-      setOwnerAccount({ ...ownerAccount, storeName: updates.name });
-    }
   };
 
-  const addItem = (newItemData: Omit<Item, 'id' | 'createdAt'>) => {
-    const newItem: Item = {
-      ...newItemData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+  const addItem = async (newItemData: Omit<Item, 'id' | 'createdAt'>) => {
+    await addItemAction(newItemData);
+    const updatedItems = await getItems();
+    setItems(updatedItems);
+  };
+
+  const updateItem = async (id: string, updates: Partial<Item>) => {
+    const target = items.find(i => i.id === id);
+    if (!target) return;
+    const merged = {
+      name: updates.name ?? target.name,
+      price: updates.price ?? target.price,
+      category: updates.category ?? target.category,
+      imageUrl: updates.imageUrl ?? target.imageUrl,
     };
-    setItems(prev => [newItem, ...prev]);
+    await updateItemAction(id, merged);
+    const updatedItems = await getItems();
+    setItems(updatedItems);
   };
 
-  const updateItem = (id: string, updates: Partial<Item>) => {
-    setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
-  };
-
-  const deleteItem = (id: string) => {
+  const deleteItem = async (id: string) => {
+    await deleteItemAction(id);
     setItems(prev => prev.filter(item => item.id !== id));
   };
 
@@ -156,33 +132,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = (customerName: string, customerPhone: string): Order => {
+  const placeOrder = async (customerName: string, customerPhone: string): Promise<Order> => {
     const totalAmount = cart.reduce((sum, item) => {
       const discount = item.price > 3000 ? 200 : 100;
       return sum + ((item.price - discount) * item.quantity);
     }, 0);
 
-    const verificationPin = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const newOrder: Order = {
-      id: Date.now().toString(),
-      customerName,
-      customerPhone,
-      items: [...cart],
-      totalAmount,
-      status: 'PAID_VERIFIED',
-      verificationPin,
-      createdAt: new Date().toISOString(),
-    };
-
+    const newOrder = await placeOrderAction(customerName, customerPhone, cart, totalAmount);
     setOrders(prev => [newOrder, ...prev]);
     clearCart();
     return newOrder;
   };
 
-  const verifyOrderPin = (pin: string): boolean => {
-    const order = orders.find(o => o.verificationPin === pin);
-    return !!order;
+  const verifyOrderPin = async (pin: string): Promise<boolean> => {
+    return await verifyOrderPinAction(pin);
   };
 
   return (
