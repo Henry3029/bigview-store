@@ -1,3 +1,9 @@
+export interface UserAccount {
+  email: string;
+  passwordHash: string; // Stored securely in a real backend / database
+  storeName: string;
+}
+
 export interface StoreInfo {
   name: string;
   bannerUrl: string;
