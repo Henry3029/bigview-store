@@ -46,10 +46,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     ownerEmail: ownerAccount?.email || 'mom@eldgate.ng',
   });
 
-  const [items, setItems] = useState<Item[]>([
-    { id: '1', name: 'Premium Imported Rice (50kg)', price: 45000, imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80', category: 'Groceries', createdAt: new Date().toISOString() },
-    { id: '2', name: 'Designer Leather Shoe', price: 2800, imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80', category: 'Fashion', createdAt: new Date().toISOString() },
+    const [items, setItems] = useState<Item[]>([
+    { 
+      id: '1', 
+      name: 'Premium Imported Rice (50kg)', 
+      price: 45000, 
+      imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80', 
+      category: 'Groceries', 
+      createdAt: '2026-10-25T00:00:00.000Z' 
+    },
+    { 
+      id: '2', 
+      name: 'Designer Leather Shoe', 
+      price: 2800, 
+      imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80', 
+      category: 'Fashion', 
+      createdAt: '2026-10-25T00:00:00.000Z' 
+    },
   ]);
+
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
