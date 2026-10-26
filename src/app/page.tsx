@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { StoreProvider } from '@/context/StoreContext';
 import Storefront from '@/components/Storefront';
 import AdminDashboard from '@/components/AdminDashboard';
-import Navbar from '@/components/Navbar';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { getItems, getStoreInfo } from '@/app/actions';
 
 export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState<'store' | 'admin'>('store');
+  const [searchQuery, setSearchQuery] = useState('');
   const [initialItems, setInitialItems] = useState([]);
   const [initialStore, setInitialStore] = useState({
     name: 'EL.D.Gate',
@@ -18,14 +19,6 @@ export default function Home() {
     ownerEmail: 'mom@eldgate.ng',
   });
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   useEffect(() => {
     async function loadData() {
@@ -46,8 +39,10 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-skin-base flex items-center justify-center text-skin-base">
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 bg-brand-yellow rounded-xl animate-spin mx-auto flex items-center justify-center font-black text-black">BV</div>
-          <p className="font-bold text-sm">Connecting EL.D.Gate to MongoDB Atlas...</p>
+          <div className="w-12 h-12 bg-[#D4AF37] text-black font-black rounded-xl animate-spin mx-auto flex items-center justify-center">
+            BV
+          </div>
+          <p className="font-bold text-sm">Loading EL.D.Gate Store...</p>
         </div>
       </div>
     );
@@ -56,25 +51,30 @@ export default function Home() {
   return (
     <StoreProvider initialItems={initialItems} initialStore={initialStore}>
       <div className="min-h-screen bg-skin-base text-skin-base flex flex-col transition-colors">
-        
-        {/* Responsive Industry-Standard Navbar */}
-        <Navbar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          darkMode={darkMode} 
-          setDarkMode={setDarkMode} 
-          storeName={initialStore.name} 
+        {/* Dedicated Modern Header */}
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onOpenCart={() => setActiveTab('store')}
         />
 
-        {/* Main Content Body */}
+        {/* Main View */}
         <main className="flex-grow">
-          {activeTab === 'store' ? <Storefront /> : <AdminDashboard />}
+          {activeTab === 'store' ? (
+            <Storefront searchQuery={searchQuery} />
+          ) : (
+            <AdminDashboard />
+          )}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-skin-card border-t border-skin-base py-6 text-center text-xs text-skin-muted">
-          <p>© 2026 BIGVIEW E-Commerce. Powered for <strong className="text-skin-base">{initialStore.name}</strong> Store.</p>
-        </footer>
+        {/* Dedicated Footer */}
+        <Footer
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          storeName={initialStore.name}
+        />
       </div>
     </StoreProvider>
   );
