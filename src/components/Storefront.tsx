@@ -21,13 +21,13 @@ export default function Storefront() {
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleCheckout = (e: React.FormEvent) => {
+  const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerPhone) {
       alert('Please enter your name and phone number for pickup/delivery.');
       return;
     }
-    const order = placeOrder(customerName, customerPhone);
+    const order = await placeOrder(customerName, customerPhone);
     setLastOrderPin(order.verificationPin);
     setIsCartOpen(false);
     setCustomerName('');

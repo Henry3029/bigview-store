@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Item, StoreInfo, Order, CartItem, UserAccount } from '@/types';
 import { 
   getItems, addItemAction, updateItemAction, deleteItemAction, 
-  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction 
+  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction, loginOwerAction,  resetPasswordAction
 } from '@/app/actions';
 
 interface StoreContextType {
@@ -16,9 +16,9 @@ interface StoreContextType {
   ownerAccount: UserAccount | null;
   setIsOwner: (val: boolean) => void;
   registerOwner: (email: string, pass: string, storeName: string) => boolean;
-  loginOwner: (email: string, pass: string) => promise<boolean>;
+  loginOwner: (email: string, pass: string) => Promise<boolean>;
   loginWithGoogle: () => void;
-  resetPassword: (email: string) => promise<boolean>;
+  resetPassword: (email: string) => Promise<boolean>;
   updateStoreInfo: (info: Partial<StoreInfo>) => Promise<void>;
   addItem: (item: Omit<Item, 'id' | 'createdAt'>) => Promise<void>;
   updateItem: (id: string, updates: Partial<Item>) => Promise<void>;

@@ -33,9 +33,9 @@ export default function AdminDashboard() {
   const [pinInput, setPinInput] = useState('');
   const [verificationResult, setVerificationResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = loginOwner(emailInput.trim(), passwordInput);
+    const success = await loginOwner(emailInput.trim(), passwordInput);
     if (!success) {
       alert('Invalid email or password. Please check your credentials or click "Forgot Password".');
     }
@@ -51,13 +51,13 @@ export default function AdminDashboard() {
     alert(`Account created successfully for ${storeNameInput}! Welcome to BIGVIEW.`);
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput) {
       alert('Please enter your registered email address.');
       return;
     }
-    resetPassword(emailInput.trim());
+    await resetPassword(emailInput.trim());
     setAuthMode('login');
   };
 
