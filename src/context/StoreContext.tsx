@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Item, StoreInfo, Order, CartItem, UserAccount } from '@/types';
 import { 
   getItems, addItemAction, updateItemAction, deleteItemAction, 
-  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction, loginOwerAction,  resetPasswordAction
+  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction, loginOwnerAction,  resetPasswordAction
 } from '@/app/actions';
 
 interface StoreContextType {

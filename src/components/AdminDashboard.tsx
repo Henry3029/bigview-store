@@ -100,9 +100,9 @@ export default function AdminDashboard() {
     setIsAddingItem(true);
   };
 
-  const handleVerifyPinSubmit = (e: React.FormEvent) => {
+  const handleVerifyPinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isValid = verifyOrderPin(pinInput.trim());
+    const isValid = await verifyOrderPin(pinInput.trim());
     if (isValid) {
       setVerificationResult({
         success: true,
