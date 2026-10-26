@@ -5,18 +5,21 @@ import { useStore } from '@/context/StoreContext';
 import { calculateDiscount } from '@/lib/pricing';
 import { ShoppingBag, Search, CheckCircle, ShieldCheck } from 'lucide-react';
 
-export default function Storefront() {
+interface StorefrontProps {
+  searchQuery?: string;
+}
+
+export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   const { store, items, cart, addToCart, placeOrder } = useStore();
-  const [searchTerm, setSearchTerm] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [lastOrderPin, setLastOrderPin] = useState<string | null>(null);
 
-  // Filter items based on search
+  // Filter items based on the search query from the header
   const filteredItems = items.filter(item => 
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
