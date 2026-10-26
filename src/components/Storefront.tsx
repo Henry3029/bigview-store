@@ -91,8 +91,8 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
           <input 
             type="text"
             placeholder="Search items in EL.D.Gate (e.g., Rice, Shoes, Bags)..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            readOnly
             className="w-full bg-skin-card border border-skin-base pl-12 pr-4 py-3 rounded-xl focus:outline-none focus:border-brand-yellow shadow-sm"
           />
         </div>
