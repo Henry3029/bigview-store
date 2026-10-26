@@ -16,9 +16,9 @@ interface StoreContextType {
   ownerAccount: UserAccount | null;
   setIsOwner: (val: boolean) => void;
   registerOwner: (email: string, pass: string, storeName: string) => boolean;
-  loginOwner: (email: string, pass: string) => boolean;
+  loginOwner: (email: string, pass: string) => promise<boolean>;
   loginWithGoogle: () => void;
-  resetPassword: (email: string) => boolean;
+  resetPassword: (email: string) => promise<boolean>;
   updateStoreInfo: (info: Partial<StoreInfo>) => Promise<void>;
   addItem: (item: Omit<Item, 'id' | 'createdAt'>) => Promise<void>;
   updateItem: (id: string, updates: Partial<Item>) => Promise<void>;
