@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "lucide-react": "^1.61.0",
-    "mongoos": "^0.0.1-security",
+    "mongoose": "^9.11.4",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
