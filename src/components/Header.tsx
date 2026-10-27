@@ -23,26 +23,33 @@ export default function Header({
 }: HeaderProps) {
   const { cart, ownerAccount, isOwner } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-skin-card/95 backdrop-blur-md border-b border-skin-base/30 py-[1px] px-[2px]">
+      <header className="sticky top-0 z-50 bg-skin-card border-b border-skin-base/30 py-1 px-3">
+
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
           
-          {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
+                  {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
           <div className="flex items-center gap-1.5 shrink-0">
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
-                aria-label="Go Back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            )}
+            <button
+              onClick={() => {
+                if (onBack) {
+                  onBack();
+                } else {
+                  window.history.back();
+                }
+              }}
+              className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
+              aria-label="Go Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <button 
               onClick={() => setActiveTab('store')}
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] drop-shadow-sm select-none hover:opacity-90 text-left"
@@ -50,6 +57,7 @@ export default function Header({
               BIGVIEW
             </button>
           </div>
+
 
           {/* MIDDLE: Sleek Opacity Search Bar */}
           <div className="flex-1 max-w-md mx-1">
@@ -59,11 +67,47 @@ export default function Header({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchOpen(true)}
                 placeholder="Search items..."
-                className="w-full bg-skin-base/40 border border-skin-base/50 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none focus:bg-skin-base/80 focus:border-[#48BB78]/60 transition-all shadow-inner"
+                className="w-full bg-stone-500/10 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/20 cursor-pointer sm:cursor-text"
+
               />
             </div>
           </div>
+          
+          {isSearchOpen && (
+  <div className="fixed inset-0 z-50 bg-skin-base flex flex-col p-4 animate-in fade-in duration-150">
+    {/* Search Header */}
+    <div className="flex items-center gap-3 pb-3 border-b border-skin-base">
+      <div className="relative flex-1 flex items-center">
+        <Search className="w-5 h-5 absolute left-3 text-skin-muted" />
+        <input
+          type="text"
+          autoFocus // Automatically pops up the mobile keyboard
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search EL.D.Gate items..."
+          className="w-full bg-skin-card border-2 border-[#48BB78] rounded-full pl-10 pr-4 py-2 text-sm text-skin-base focus:outline-none shadow-md"
+        />
+      </div>
+      <button 
+        onClick={() => setIsSearchOpen(false)}
+        className="font-bold text-sm px-3 py-2 text-skin-muted hover:text-skin-base"
+      >
+        Cancel
+      </button>
+    </div>
+
+    {/* Search Results Preview or Quick Categories */}
+    <div className="flex-1 overflow-y-auto py-4">
+      <p className="text-xs text-skin-muted font-bold uppercase tracking-wider mb-3">
+        Matching Items ({searchQuery ? 'Filtered' : 'Type to search'})
+      </p>
+      {/* You can map your filtered items list here */}
+    </div>
+  </div>
+)}
+
 
           {/* RIGHT: Mobile Menu (Hidden on Desktop), User Profile, Cart */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
