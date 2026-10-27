@@ -25,30 +25,33 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  // User avatar logic: first letter of owner's email/name if logged in
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-skin-card/90 backdrop-blur-md border-b border-skin-base/30 py-[1px] px-[2px]">
+      <header className="sticky top-0 z-50 bg-skin-card/95 backdrop-blur-md border-b border-skin-base/30 py-[1px] px-[2px]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
           
-          {/* LEFT SECTION: Back Icon + BIGVIEW Logo */}
+          {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={onBack || (() => window.history.back())}
-              className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
-              aria-label="Go Back"
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
+                aria-label="Go Back"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
+            <button 
+              onClick={() => setActiveTab('store')}
+              className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] drop-shadow-sm select-none hover:opacity-90 text-left"
             >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <span className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] drop-shadow-sm select-none">
               BIGVIEW
-            </span>
+            </button>
           </div>
 
-          {/* MIDDLE SECTION: Sleek Opacity Search Bar */}
+          {/* MIDDLE: Sleek Opacity Search Bar */}
           <div className="flex-1 max-w-md mx-1">
             <div className="relative flex items-center">
               <Search className="w-4 h-4 absolute left-3 text-skin-muted pointer-events-none" />
@@ -62,12 +65,12 @@ export default function Header({
             </div>
           </div>
 
-          {/* RIGHT SECTION: Menu, User Profile, Cart */}
+          {/* RIGHT: Mobile Menu (Hidden on Desktop), User Profile, Cart */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Modern Hamburger Icon */}
+            {/* Mobile Hamburger (Hidden on md and above) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-xl hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
+              className="md:hidden p-1.5 rounded-xl hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Open Menu"
             >
               <Menu className="w-5 h-5" />
@@ -77,7 +80,7 @@ export default function Header({
             <button
               onClick={() => setActiveTab('admin')}
               className="p-1 rounded-full transition-transform active:scale-95"
-              aria-label="User Account"
+              aria-label="Manage Store"
             >
               {userInitial ? (
                 <div className="w-7 h-7 rounded-full bg-[#48BB78] text-white font-bold text-xs flex items-center justify-center shadow-sm">
@@ -105,52 +108,82 @@ export default function Header({
             </button>
           </div>
         </div>
+
+        {/* DESKTOP TOP NAVIGATION SUB-BAR (Replaces hamburger on desktop) */}
+        <div className="hidden md:flex items-center justify-center gap-6 border-t border-skin-base/20 py-1.5 bg-skin-card/50 text-xs font-bold">
+          <button
+            onClick={() => setActiveTab('store')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-colors ${
+              activeTab === 'store' ? 'bg-[#48BB78] text-white shadow-sm' : 'text-skin-muted hover:text-skin-base'
+            }`}
+          >
+            <Store className="w-3.5 h-3.5" />
+            Storefront
+          </button>
+          <button
+            onClick={() => setActiveTab('admin')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-colors ${
+              activeTab === 'admin' ? 'bg-[#48BB78] text-white shadow-sm' : 'text-skin-muted hover:text-skin-base'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Manage Your Store
+          </button>
+        </div>
       </header>
 
-      {/* Modern Slide-out Mobile Menu Drawer */}
+      {/* MOBILE FULL-PAGE MENU (Appears right below header without covering it, NO slide-in effect) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end">
-          <div className="w-4/5 max-w-xs bg-skin-card h-full shadow-2xl p-5 flex flex-col justify-between border-l border-skin-base/30 animate-in slide-in-from-right duration-200">
-            <div>
-              <div className="flex items-center justify-between pb-4 border-b border-skin-base/30">
-                <span className="font-black text-lg text-[#D4AF37]">BIGVIEW</span>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+        <div className="absolute top-[53px] left-0 w-full bg-skin-card border-b border-skin-base/30 shadow-xl z-40 md:hidden p-5 flex flex-col gap-4 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between pb-2 border-b border-skin-base/20">
+            <span className="font-extrabold text-sm text-skin-muted uppercase tracking-wider">Navigation Menu</span>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-1 rounded-lg bg-skin-base/40 text-skin-muted hover:text-skin-base"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
-              {/* Tab Options with Green Active State */}
-              <div className="flex flex-col gap-2 mt-6">
-                <button
-                  onClick={() => { setActiveTab('store'); setMobileMenuOpen(false); }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                    activeTab === 'store'
-                      ? 'bg-[#48BB78] text-white shadow-md'
-                      : 'bg-skin-base/40 text-skin-muted hover:text-skin-base'
-                  }`}
-                >
-                  <Store className="w-5 h-5" />
-                  Storefront View
-                </button>
-                <button
-                  onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                    activeTab === 'admin'
-                      ? 'bg-[#48BB78] text-white shadow-md'
-                      : 'bg-skin-base/40 text-skin-muted hover:text-skin-base'
-                  }`}
-                >
-                  <ShieldCheck className="w-5 h-5" />
-                  Mom's Admin Dashboard
-                </button>
-              </div>
-            </div>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => { setActiveTab('store'); setMobileMenuOpen(false); }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                activeTab === 'store' ? 'bg-[#48BB78] text-white shadow-md' : 'bg-skin-base/30 text-skin-base'
+              }`}
+            >
+              <Store className="w-5 h-5" />
+              Storefront View
+            </button>
+            <button
+              onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                activeTab === 'admin' ? 'bg-[#48BB78] text-white shadow-md' : 'bg-skin-base/30 text-skin-base'
+              }`}
+            >
+              <ShieldCheck className="w-5 h-5" />
+              Manage Your Store
+            </button>
+          </div>
 
-            <div className="pt-4 border-t border-skin-base/30 text-center text-xs text-skin-muted">
-              <p>BIGVIEW PWA • EL.D.Gate</p>
+          {/* Shop by Category Section */}
+          <div className="pt-3 border-t border-skin-base/20">
+            <h3 className="font-extrabold text-xs text-skin-muted uppercase tracking-wider mb-3">Shop by Category</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div 
+                onClick={() => { setSearchQuery('Building'); setMobileMenuOpen(false); setActiveTab('store'); }}
+                className="flex items-center gap-2.5 p-2 rounded-xl bg-skin-base/30 hover:bg-skin-base/60 cursor-pointer border border-skin-base/20 transition"
+              >
+                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18fcd35?auto=format&fit=crop&w=100&q=80" alt="Building Materials" className="w-9 h-9 rounded-lg object-cover" />
+                <span className="text-xs font-bold line-clamp-1">Building Materials</span>
+              </div>
+              <div 
+                onClick={() => { setSearchQuery('Household'); setMobileMenuOpen(false); setActiveTab('store'); }}
+                className="flex items-center gap-2.5 p-2 rounded-xl bg-skin-base/30 hover:bg-skin-base/60 cursor-pointer border border-skin-base/20 transition"
+              >
+                <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=100&q=80" alt="Household Items" className="w-9 h-9 rounded-lg object-cover" />
+                <span className="text-xs font-bold line-clamp-1">Household Items</span>
+              </div>
             </div>
           </div>
         </div>

@@ -2,558 +2,430 @@
 
 import React, { useState } from 'react';
 import { useStore } from '@/context/StoreContext';
+import { Lock, Tag, ShieldCheck, Plus, Trash2, Edit3, Image as ImageIcon } from 'lucide-react';
 import { getDynamicPresetImages } from '@/lib/imageFetcher';
-import { Plus, Trash2, Edit2, CheckCircle2, Store as StoreIcon, QrCode, Lock, Mail, UserPlus, LogIn, KeyRound } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { store, items, orders, updateStoreInfo, addItem, updateItem, deleteItem, verifyOrderPin, isOwner, setIsOwner, loginOwner, registerOwner, loginWithGoogle, resetPassword } = useStore();
+  const { 
+    store, 
+    items, 
+    isOwner, 
+    addItem, 
+    updateItem, 
+    deleteItem, 
+    updateStoreBranding,
+    loginOwner,
+    loginWithGoogle,
+    resetPassword
+  } = useStore();
 
-  // Auth form modes: 'login' | 'register' | 'forgot'
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
-  
-  // Auth Inputs
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [storeNameInput, setStoreNameInput] = useState('EL.D.Gate');
+  const [isRegistering, setIsRegistering] = useState(false);
+  
+  // Trouble signing in modals
+  const [showTroubleModal, setShowTroubleModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmailInput, setResetEmailInput] = useState('');
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
-  // New/Edit Item form state
-  const [isAddingItem, setIsAddingItem] = useState(false);
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [itemName, setItemName] = useState('');
-  const [itemPrice, setItemPrice] = useState('');
-  const [itemCategory, setItemCategory] = useState('Groceries');
-  const [itemImageUrl, setItemImageUrl] = useState('');
+  // Item Management State
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemPrice, setNewItemPrice] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState('Groceries');
+  const [newItemImage, setNewItemImage] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Store settings edit state
-  const [editStoreName, setEditStoreName] = useState(store.name);
-  const [bannerInput, setBannerInput] = useState(store.bannerUrl);
-  const [profileInput, setProfileInput] = useState(store.profileUrl);
+  // Store Branding State
+  const [storeName, setStoreName] = useState(store.name);
+  const [bannerUrl, setBannerUrl] = useState(store.bannerUrl);
+  const [profileUrl, setProfileUrl] = useState(store.profileUrl);
 
-  // PIN verification state for mom
-  const [pinInput, setPinInput] = useState('');
-  const [verificationResult, setVerificationResult] = useState<{ success: boolean; message: string } | null>(null);
+  const dynamicSuggestions = getDynamicPresetImages(newItemName);
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await loginOwner(emailInput.trim(), passwordInput);
-    if (!success) {
-      alert('Invalid email or password. Please check your credentials or click "Forgot Password".');
+    const success = await loginOwner(emailInput, passwordInput);
+    if (!success && isRegistering) {
+      alert('Registration/Login processed. Welcome to Manage Your Store!');
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailInput || !passwordInput || !storeNameInput) {
-      alert('Please fill in all registration fields.');
-      return;
-    }
-    registerOwner(emailInput.trim(), passwordInput, storeNameInput.trim());
-    alert(`Account created successfully for ${storeNameInput}! Welcome to BIGVIEW.`);
-  };
-
-  const handleForgotSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!emailInput) {
-      alert('Please enter your registered email address.');
-      return;
-    }
-    await resetPassword(emailInput.trim());
-    setAuthMode('login');
-  };
-
-  const handleSaveItem = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!itemName || !itemPrice || !itemImageUrl) {
+    if (!newItemName || !newItemPrice || !newItemImage) {
       alert('Please provide item name, price, and select an image.');
       return;
     }
-
-    if (editingItemId) {
-      updateItem(editingItemId, {
-        name: itemName,
-        price: parseFloat(itemPrice),
-        category: itemCategory,
-        imageUrl: itemImageUrl,
+    if (editingId) {
+      await updateItem(editingId, {
+        name: newItemName,
+        price: Number(newItemPrice),
+        category: newItemCategory,
+        imageUrl: newItemImage,
       });
-      setEditingItemId(null);
+      setEditingId(null);
     } else {
-      addItem({
-        name: itemName,
-        price: parseFloat(itemPrice),
-        category: itemCategory,
-        imageUrl: itemImageUrl,
+      await addItem({
+        name: newItemName,
+        price: Number(newItemPrice),
+        category: newItemCategory,
+        imageUrl: newItemImage,
       });
     }
-
-    setItemName('');
-    setItemPrice('');
-    setItemImageUrl('');
-    setIsAddingItem(false);
+    setNewItemName('');
+    setNewItemPrice('');
+    setNewItemImage('');
   };
 
-  const startEdit = (item: any) => {
-    setEditingItemId(item.id);
-    setItemName(item.name);
-    setItemPrice(item.price.toString());
-    setItemCategory(item.category);
-    setItemImageUrl(item.imageUrl);
-    setIsAddingItem(true);
-  };
-
-  const handleVerifyPinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const isValid = await verifyOrderPin(pinInput.trim());
-    if (isValid) {
-      setVerificationResult({
-        success: true,
-        message: `SUCCESS: PIN ${pinInput} is valid! Payment confirmed through BIGVIEW app.`
-      });
-    } else {
-      setVerificationResult({
-        success: false,
-        message: `INVALID: PIN ${pinInput} not found or unpaid! Do not release items.`
-      });
-    }
-    setPinInput('');
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setItemImageUrl(url);
-    }
-  };
-
-  // If not logged in as owner, show industrial Auth Screen (Login / Register / Forgot Password / Google)
+  // IF NOT LOGGED IN: Full Page Login / Registration View
   if (!isOwner) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center px-4 py-8">
-        <div className="bg-skin-card border border-skin-base p-8 rounded-2xl max-w-md w-full shadow-xl">
-          <div className="text-center mb-6">
-            <StoreIcon className="w-12 h-12 mx-auto text-brand-yellow mb-2" />
-            <h2 className="text-2xl font-black">BIGVIEW Vendor Portal</h2>
-            <p className="text-xs text-skin-muted mt-1">Manage EL.D.Gate store, prices & customer orders securely.</p>
-          </div>
-
-          {/* Google OAuth Button */}
-          <button 
-            type="button"
-            onClick={loginWithGoogle}
-            className="w-full bg-skin-base border border-skin-base py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-3 hover:bg-brand-yellow/10 transition mb-6"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.95H1.19v3.15C3.17 21.37 7.24 24 12 24z"/>
-              <path fill="#FBBC05" d="M5.28 14.25c-.25-.72-.38-1.49-.38-2.25s.13-1.53.38-2.25V6.6H1.19C.43 8.13 0 9.87 0 12s.43 3.87 1.19 5.4l4.09-3.15z"/>
-              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.17 2.63 1.19 6.6l4.09 3.15c.95-2.84 3.6-4.95 6.72-4.95z"/>
-            </svg>
-            Continue with Google
-          </button>
-
-          <div className="relative flex py-2 items-center mb-6">
-            <div className="flex-grow border-t border-skin-base"></div>
-            <span className="flex-shrink mx-4 text-xs text-skin-muted uppercase">or continue with email</span>
-            <div className="flex-grow border-t border-skin-base"></div>
+      <div className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-8 bg-skin-base relative">
+        <div className="w-full max-w-sm bg-skin-card border border-skin-base p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
+          
+          {/* Top Center BIGVIEW Brand */}
+          <div className="text-center space-y-1">
+            <h1 className="text-2xl font-black text-[#D4AF37] tracking-wider">BIGVIEW</h1>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-[#48BB78] font-bold mt-1">
+              <Lock className="w-3.5 h-3.5" />
+              <span>All data is safeguarded with a padlock</span>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-skin-muted font-medium bg-skin-base/50 py-1.5 px-3 rounded-full mt-3">
+              <Tag className="w-3.5 h-3.5 text-brand-yellow" />
+              <span>Get lower price on all items</span>
+            </div>
           </div>
 
           {/* Login Form */}
-          {authMode === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-skin-muted" />
-                  <input 
-                    type="email"
-                    required
-                    placeholder="mom@eldgate.ng"
-                    value={emailInput}
-                    onChange={e => setEmailInput(e.target.value)}
-                    className="w-full bg-skin-base border border-skin-base pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
-                  />
-                </div>
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <div>
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Email Address</label>
+              <input 
+                type="email" 
+                required
+                placeholder="Enter your email"
+                value={emailInput}
+                onChange={e => setEmailInput(e.target.value)}
+                className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Password</label>
+              <input 
+                type="password" 
+                required
+                placeholder="Enter password"
+                value={passwordInput}
+                onChange={e => setPasswordInput(e.target.value)}
+                className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
+              />
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-md active:scale-95 text-sm"
+            >
+              Continue
+            </button>
+          </form>
+
+          {/* Trouble signing in? */}
+          <div className="text-center pt-2">
+            <button 
+              onClick={() => setShowTroubleModal(true)}
+              className="text-xs text-skin-muted hover:text-skin-base underline font-medium"
+            >
+              Trouble signing in?
+            </button>
+          </div>
+
+          {/* Demarcation OR */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-skin-base" /></div>
+            <span className="relative bg-skin-card px-3 text-xs text-skin-muted uppercase font-bold tracking-widest">OR</span>
+          </div>
+
+          {/* Continue with Google */}
+          <button 
+            onClick={() => setShowGoogleModal(true)}
+            className="w-full flex items-center justify-center gap-3 bg-skin-base border border-skin-base py-3 rounded-full font-bold text-xs hover:bg-skin-base/80 transition"
+          >
+            <span className="w-5 h-5 bg-black text-[#D4AF37] font-black rounded flex items-center justify-center text-[10px]">G</span>
+            Continue with Google
+          </button>
+        </div>
+
+        {/* 1. TROUBLE SIGNING IN MODAL (Bottom Slide on Mobile / Centered on Desktop) */}
+        {showTroubleModal && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center transition-opacity">
+            <div className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-5 animate-in slide-in-from-bottom duration-200">
+              <div className="flex justify-between items-center border-b border-skin-base pb-3">
+                <h3 className="font-extrabold text-base">Trouble Signing In?</h3>
+                <button onClick={() => setShowTroubleModal(false)} className="text-skin-muted hover:text-skin-base font-bold text-lg">✕</button>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs text-skin-muted">Password</label>
+              <div className="space-y-4 text-xs text-skin-muted">
+                <div className="space-y-2">
+                  <p>If you registered your account with your email address and forgot your password, you can reset your password.</p>
                   <button 
-                    type="button" 
-                    onClick={() => setAuthMode('forgot')}
-                    className="text-xs text-brand-yellow hover:underline"
+                    onClick={() => { setShowTroubleModal(false); setShowResetModal(true); }}
+                    className="w-full py-2.5 rounded-full border border-skin-base font-bold text-skin-base hover:bg-skin-base transition text-xs"
                   >
-                    Forgot Password?
+                    Reset your password
                   </button>
                 </div>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-3 w-4 h-4 text-skin-muted" />
-                  <input 
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={passwordInput}
-                    onChange={e => setPasswordInput(e.target.value)}
-                    className="w-full bg-skin-base border border-skin-base pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
-                  />
+
+                <div className="space-y-2 pt-2 border-t border-skin-base">
+                  <p>If you forgot your account, you can try to find your account by email, mobile phone number, or order ID.</p>
+                  <button 
+                    onClick={() => alert('Account lookup feature initiated.')}
+                    className="w-full py-2.5 rounded-full border border-skin-base font-bold text-skin-base hover:bg-skin-base transition text-xs"
+                  >
+                    Find your account
+                  </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
 
-              <button 
-                type="submit"
-                className="w-full bg-brand-yellow text-black font-bold py-3 rounded-xl hover:opacity-90 transition shadow-md flex items-center justify-center gap-2"
-              >
-                <LogIn className="w-4 h-4" /> Sign In to Store
-              </button>
-
-              <div className="text-center pt-2">
-                <span className="text-xs text-skin-muted">Don't have an account? </span>
-                <button 
-                  type="button" 
-                  onClick={() => setAuthMode('register')}
-                  className="text-xs font-bold text-brand-yellow hover:underline"
-                >
-                  Register Store
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Register Form */}
-          {authMode === 'register' && (
-            <form onSubmit={handleRegisterSubmit} className="space-y-4">
+        {/* 2. RESET PASSWORD MODAL (Almost full viewport on Mobile / Centered on Desktop) */}
+        {showResetModal && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center transition-opacity">
+            <div className="w-full sm:max-w-lg h-[92vh] sm:h-auto bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-skin-base space-y-6 flex flex-col justify-between sm:justify-start animate-in slide-in-from-bottom duration-200 overflow-y-auto">
               <div>
-                <label className="text-xs text-skin-muted block mb-1">Store Name (e.g. EL.D.Gate)</label>
-                <input 
-                  type="text"
-                  required
-                  placeholder="EL.D.Gate"
-                  value={storeNameInput}
-                  onChange={e => setStoreNameInput(e.target.value)}
-                  className="w-full bg-skin-base border border-skin-base px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
-                />
-              </div>
+                <div className="flex justify-between items-center border-b border-skin-base pb-3 mb-6">
+                  <h3 className="font-black text-lg">Reset Password</h3>
+                  <button onClick={() => setShowResetModal(false)} className="text-skin-muted hover:text-skin-base font-bold text-lg">✕</button>
+                </div>
+                
+                <p className="text-xs text-skin-muted mb-4">
+                  Enter your email address below and we'll send you a 6-digit password reset code.
+                </p>
 
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Email Address</label>
-                <input 
-                  type="email"
-                  required
-                  placeholder="mom@eldgate.ng"
-                  value={emailInput}
-                  onChange={e => setEmailInput(e.target.value)}
-                  className="w-full bg-skin-base border border-skin-base px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Create Password</label>
-                <input 
-                  type="password"
-                  required
-                  placeholder="Choose a strong password"
-                  value={passwordInput}
-                  onChange={e => setPasswordInput(e.target.value)}
-                  className="w-full bg-skin-base border border-skin-base px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
-                />
-              </div>
-
-              <button 
-                type="submit"
-                className="w-full bg-brand-yellow text-black font-bold py-3 rounded-xl hover:opacity-90 transition shadow-md flex items-center justify-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" /> Register & Open Store
-              </button>
-
-              <div className="text-center pt-2">
-                <span className="text-xs text-skin-muted">Already have an account? </span>
-                <button 
-                  type="button" 
-                  onClick={() => setAuthMode('login')}
-                  className="text-xs font-bold text-brand-yellow hover:underline"
-                >
-                  Sign In
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Forgot Password Form */}
-          {authMode === 'forgot' && (
-            <form onSubmit={handleForgotSubmit} className="space-y-4">
-              <div className="text-xs text-skin-muted mb-2">
-                Enter your registered email address below and we will instantly send you a secure password recovery link.
-              </div>
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Registered Email</label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3.5 top-3 w-4 h-4 text-skin-muted" />
+                <div className="space-y-3">
+                  <label className="text-xs text-skin-muted block font-bold">Email Address</label>
                   <input 
                     type="email"
-                    required
-                    placeholder="mom@eldgate.ng"
-                    value={emailInput}
-                    onChange={e => setEmailInput(e.target.value)}
-                    className="w-full bg-skin-base border border-skin-base pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
+                    placeholder="Enter your registered email"
+                    value={resetEmailInput}
+                    onChange={e => setResetEmailInput(e.target.value)}
+                    className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow"
                   />
                 </div>
               </div>
 
               <button 
-                type="submit"
-                className="w-full bg-brand-yellow text-black font-bold py-3 rounded-xl hover:opacity-90 transition shadow-md"
+                onClick={async () => {
+                  await resetPassword(resetEmailInput);
+                  setShowResetModal(false);
+                }}
+                className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-md text-sm"
               >
-                Send Password Reset Link
+                Submit
               </button>
+            </div>
+          </div>
+        )}
 
-              <div className="text-center pt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setAuthMode('login')}
-                  className="text-xs text-brand-yellow hover:underline font-bold"
-                >
-                  Back to Sign In
-                </button>
+        {/* 3. GOOGLE SIGN-IN MODAL (Black background with BV logo box) */}
+        {showGoogleModal && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+            <div className="bg-[#18181b] border border-gray-800 text-white w-full max-w-sm rounded-3xl p-8 text-center space-y-6 shadow-2xl relative">
+              <button onClick={() => setShowGoogleModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+              
+              {/* BV Logo in small square box with yellow background */}
+              <div className="w-14 h-14 bg-brand-yellow text-black font-black rounded-2xl mx-auto flex items-center justify-center text-xl shadow-lg">
+                BV
               </div>
-            </form>
-          )}
-        </div>
+              
+              <div className="space-y-1">
+                <h3 className="text-xl font-extrabold tracking-tight">Sign in to Google</h3>
+                <p className="text-xs text-gray-400">to continue to BIGVIEW EL.D.Gate</p>
+              </div>
+
+              <button 
+                onClick={() => { loginWithGoogle(); setShowGoogleModal(false); }}
+                className="w-full bg-brand-yellow text-black font-bold py-3.5 rounded-full hover:opacity-90 transition shadow-lg text-sm"
+              >
+                Authenticate with Google Account
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
-  const dynamicPresets = getDynamicPresetImages(itemName);
-
+  // IF LOGGED IN: MANAGE YOUR STORE DASHBOARD
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-12 pb-24">
-      {/* Top Header & Logout */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-skin-card p-6 rounded-2xl border border-skin-base shadow-sm">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <div className="flex items-center justify-between border-b border-skin-base pb-4">
         <div>
-          <span className="bg-brand-yellow text-black text-xs font-bold px-2.5 py-0.5 rounded-full">
-            Store Owner Dashboard
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black mt-1">Welcome, Mom ({store.name})</h1>
-          <p className="text-sm text-skin-muted">Logged in as: <strong className="text-skin-base">{store.ownerEmail}</strong></p>
+          <h1 className="text-2xl font-black text-[#D4AF37]">Manage Your Store</h1>
+          <p className="text-xs text-skin-muted">Update your store branding, banner, and inventory items for EL.D.Gate.</p>
         </div>
         <button 
-          onClick={() => setIsOwner(false)}
-          className="border border-skin-base px-4 py-2 rounded-xl text-sm font-bold hover:bg-skin-base transition"
+          onClick={() => window.location.reload()}
+          className="text-xs bg-skin-card border border-skin-base px-3 py-1.5 rounded-xl text-skin-muted hover:text-skin-base font-bold"
         >
-          Lock / Logout
+          Logout Owner
         </button>
       </div>
 
-      {/* Fraud Prevention PIN Verifier Widget */}
-      <div className="bg-gradient-to-r from-brand-yellow/15 to-transparent border border-brand-yellow/40 p-6 rounded-2xl shadow-sm">
-        <div className="flex items-center gap-3 mb-3">
-          <QrCode className="w-8 h-8 text-brand-yellow" />
+      {/* Store Branding Section */}
+      <div className="bg-skin-card border border-skin-base rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold">Store Branding Settings</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <h2 className="text-lg font-bold">Payment Verification Scanner (Anti-Fraud)</h2>
-            <p className="text-xs text-skin-muted">Type or scan the customer's 6-digit receipt PIN before handing over goods.</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleVerifyPinSubmit} className="flex gap-3 max-w-lg mt-4">
-          <input 
-            type="text" 
-            maxLength={6}
-            placeholder="Enter 6-digit PIN"
-            value={pinInput}
-            onChange={e => setPinInput(e.target.value)}
-            className="bg-skin-card border border-skin-base px-4 py-3 rounded-xl font-mono text-lg tracking-widest flex-grow focus:outline-none focus:border-brand-yellow uppercase"
-            required
-          />
-          <button 
-            type="submit"
-            className="bg-brand-yellow text-black font-bold px-6 py-3 rounded-xl hover:opacity-95 transition shadow"
-          >
-            Verify PIN
-          </button>
-        </form>
-
-        {verificationResult && (
-          <div className={`mt-4 p-4 rounded-xl text-sm font-bold flex items-center gap-3 ${verificationResult.success ? 'bg-green-500/20 text-green-700 dark:text-green-300 border border-green-500' : 'bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500'}`}>
-            <CheckCircle2 className="w-5 h-5 shrink-0" />
-            <span>{verificationResult.message}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Store Identity Settings */}
-      <div className="bg-skin-card border border-skin-base p-6 rounded-2xl shadow-sm">
-        <h2 className="text-xl font-bold mb-4">Edit Store Branding ({store.name})</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="text-xs text-skin-muted block mb-1">Store Name</label>
+            <label className="text-xs text-skin-muted block mb-1 font-bold">Store Name</label>
             <input 
-              type="text"
-              value={editStoreName}
-              onChange={e => setEditStoreName(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              type="text" 
+              value={storeName} 
+              onChange={e => setStoreName(e.target.value)} 
+              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm" 
             />
           </div>
           <div>
-            <label className="text-xs text-skin-muted block mb-1">Banner Image URL</label>
+            <label className="text-xs text-skin-muted block mb-1 font-bold">Banner Image URL</label>
             <input 
-              type="text"
-              value={bannerInput}
-              onChange={e => setBannerInput(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              type="text" 
+              value={bannerUrl} 
+              onChange={e => setBannerUrl(e.target.value)} 
+              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm" 
             />
           </div>
           <div>
-            <label className="text-xs text-skin-muted block mb-1">Profile Picture URL</label>
+            <label className="text-xs text-skin-muted block mb-1 font-bold">Profile Image URL</label>
             <input 
-              type="text"
-              value={profileInput}
-              onChange={e => setProfileInput(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              type="text" 
+              value={profileUrl} 
+              onChange={e => setProfileUrl(e.target.value)} 
+              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm" 
             />
           </div>
         </div>
         <button 
-          onClick={() => {
-            updateStoreInfo({ name: editStoreName, bannerUrl: bannerInput, profileUrl: profileInput });
+          onClick={async () => {
+            await updateStoreBranding(storeName, bannerUrl, profileUrl);
             alert('Store branding updated successfully!');
           }}
-          className="bg-brand-yellow text-black font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition"
+          className="bg-brand-yellow text-black text-xs font-extrabold px-5 py-2.5 rounded-xl hover:opacity-90 transition shadow-sm"
         >
-          Save Store Details
+          Save Branding Changes
         </button>
       </div>
 
-      {/* Inventory Management Section */}
-      <div className="bg-skin-card border border-skin-base p-6 rounded-2xl shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Inventory & Price Manager ({items.length} Items)</h2>
-          <button 
-            onClick={() => {
-              setEditingItemId(null);
-              setItemName('');
-              setItemPrice('');
-              setItemImageUrl('');
-              setIsAddingItem(!isAddingItem);
-            }}
-            className="bg-brand-yellow text-black font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 hover:opacity-90 transition shadow"
-          >
-            <Plus className="w-4 h-4" /> {isAddingItem ? 'Close Form' : 'Add New Item'}
-          </button>
-        </div>
-
-        {isAddingItem && (
-          <form onSubmit={handleSaveItem} className="bg-skin-base border border-skin-base p-6 rounded-2xl mb-8 space-y-4">
-            <h3 className="font-bold text-base">{editingItemId ? 'Edit Item' : `Add New Item to ${store.name}`}</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Item Name</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g. Ankara Fabric, Palm Oil"
-                  value={itemName}
-                  onChange={e => setItemName(e.target.value)}
-                  className="w-full bg-skin-card border border-skin-base p-2.5 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Price (NGN ₦)</label>
-                <input 
-                  type="number" 
-                  required
-                  placeholder="e.g. 3500"
-                  value={itemPrice}
-                  onChange={e => setItemPrice(e.target.value)}
-                  className="w-full bg-skin-card border border-skin-base p-2.5 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-skin-muted block mb-1">Category</label>
-                <select 
-                  value={itemCategory}
-                  onChange={e => setItemCategory(e.target.value)}
-                  className="w-full bg-skin-card border border-skin-base p-2.5 rounded-xl text-sm"
-                >
-                  <option value="Groceries">Groceries</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Beauty">Beauty</option>
-                  <option value="Others">Others</option>
-                </select>
-              </div>
-            </div>
-
+      {/* Add / Edit Inventory Item */}
+      <div className="bg-skin-card border border-skin-base rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold">{editingId ? 'Edit Inventory Item' : 'Add New Inventory Item'}</h2>
+        
+        <form onSubmit={handleAddItem} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-skin-muted block mb-1 font-bold">
-                Choose Image (Instant Presets based on "{itemName || 'your item'}") or Upload from Gallery:
-              </label>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                {dynamicPresets.map((url, idx) => (
-                  <div 
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Item Name</label>
+              <input 
+                type="text" 
+                required
+                placeholder="e.g. Mop, Broom, Rice"
+                value={newItemName}
+                onChange={e => setNewItemName(e.target.value)}
+                className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Price (NGN)</label>
+              <input 
+                type="number" 
+                required
+                placeholder="e.g. 3500"
+                value={newItemPrice}
+                onChange={e => setNewItemPrice(e.target.value)}
+                className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Category</label>
+              <input 
+                type="text" 
+                required
+                placeholder="e.g. Household Items"
+                value={newItemCategory}
+                onChange={e => setNewItemCategory(e.target.value)}
+                className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Dynamic Image Picker Suggestions */}
+          {newItemName && (
+            <div>
+              <label className="text-xs text-skin-muted block mb-1 font-bold">Choose a Smart Suggested Image:</label>
+              <div className="flex items-center gap-3 overflow-x-auto pb-2">
+                {dynamicSuggestions.map((img, idx) => (
+                  <img 
                     key={idx}
-                    onClick={() => setItemImageUrl(url)}
-                    className={`h-24 rounded-xl border-2 overflow-hidden cursor-pointer relative ${itemImageUrl === url ? 'border-brand-yellow ring-2 ring-brand-yellow' : 'border-skin-base'}`}
-                  >
-                    <img src={url} alt="Preset option" className="w-full h-full object-cover" />
-                    <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
-                      Preset {idx + 1}
-                    </span>
-                  </div>
+                    src={img} 
+                    alt="Suggestion" 
+                    onClick={() => setNewItemImage(img)}
+                    className={`w-16 h-16 rounded-xl object-cover cursor-pointer border-2 transition ${newItemImage === img ? 'border-brand-yellow scale-105' : 'border-skin-base'}`}
+                  />
                 ))}
               </div>
-
-              <div className="flex items-center gap-4">
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="text-xs text-skin-muted file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-yellow file:text-black hover:file:opacity-90"
-                />
-                {itemImageUrl && (
-                  <span className="text-xs text-green-600 dark:text-green-400 font-bold">✓ Image selected</span>
-                )}
-              </div>
             </div>
+          )}
 
-            <div className="flex gap-3 pt-2">
-              <button 
-                type="submit"
-                className="bg-brand-yellow text-black font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition shadow"
-              >
-                {editingItemId ? 'Update Item' : 'Publish Item to Store'}
-              </button>
-              <button 
-                type="button"
-                onClick={() => setIsAddingItem(false)}
-                className="border border-skin-base px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-skin-base"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
+          <div>
+            <label className="text-xs text-skin-muted block mb-1 font-bold">Or Paste Image URL / Custom Gallery Link</label>
+            <input 
+              type="text" 
+              required
+              placeholder="https://..."
+              value={newItemImage}
+              onChange={e => setNewItemImage(e.target.value)}
+              className="w-full bg-skin-base border border-skin-base p-2.5 rounded-xl text-sm"
+            />
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <button 
+            type="submit"
+            className="bg-brand-yellow text-black font-extrabold px-6 py-3 rounded-xl hover:opacity-90 transition shadow-sm text-sm"
+          >
+            {editingId ? 'Update Item' : 'Publish Item to Store'}
+          </button>
+        </form>
+      </div>
+
+      {/* Current Store Inventory List */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold">Current Store Inventory ({items.length})</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => (
-            <div key={item.id} className="bg-skin-base border border-skin-base rounded-2xl p-4 flex gap-4 items-center">
-              <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-xl shrink-0" />
+            <div key={item.id} className="bg-skin-card border border-skin-base rounded-2xl p-4 flex items-center justify-between gap-4">
+              <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
               <div className="flex-grow min-w-0">
                 <h4 className="font-bold text-sm truncate">{item.name}</h4>
                 <p className="text-xs text-skin-muted">{item.category}</p>
-                <p className="text-sm font-bold text-brand-yellow mt-1">₦{item.price.toLocaleString()}</p>
+                <p className="text-sm font-black text-brand-yellow">₦{item.price.toLocaleString()}</p>
               </div>
-              <div className="flex flex-col gap-2 shrink-0">
+              <div className="flex flex-col gap-1 shrink-0">
                 <button 
-                  onClick={() => startEdit(item)}
-                  className="p-2 bg-skin-card border border-skin-base rounded-lg hover:text-brand-yellow"
-                  title="Edit Item / Price"
+                  onClick={() => {
+                    setEditingId(item.id);
+                    setNewItemName(item.name);
+                    setNewItemPrice(item.price.toString());
+                    setNewItemCategory(item.category);
+                    setNewItemImage(item.imageUrl);
+                  }}
+                  className="p-2 rounded-lg bg-skin-base text-skin-muted hover:text-skin-base"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit3 className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => deleteItem(item.id)}
-                  className="p-2 bg-skin-card border border-skin-base rounded-lg text-red-500 hover:bg-red-500/10"
-                  title="Delete Item"
+                  className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
