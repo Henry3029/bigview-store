@@ -28,6 +28,7 @@ interface StoreContextType {
   clearCart: () => void;
   placeOrder: (customerName: string, customerPhone: string) => Promise<Order>;
   verifyOrderPin: (pin: string) => Promise<boolean>;
+  updateStoreBranding: (name: string, bannerUrl: string, profileUrl: string) => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
