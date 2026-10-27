@@ -167,7 +167,7 @@ export const StoreProvider: React.FC<{
       store, items, cart, orders, isOwner, ownerAccount, setIsOwner,
       registerOwner, loginOwner, loginWithGoogle, resetPassword,
       updateStoreInfo, addItem, updateItem, deleteItem,
-      addToCart, removeFromCart, clearCart, placeOrder, verifyOrderPin
+      addToCart, removeFromCart, clearCart, placeOrder, verifyOrderPin, updateStoreBranding: handleUpdateStoreBranding
     }}>
       {children}
     </StoreContext.Provider>
