@@ -161,17 +161,24 @@ export const StoreProvider: React.FC<{
   const verifyOrderPin = async (pin: string): Promise<boolean> => {
     return await verifyOrderPinAction(pin);
   };
+  
+    const handleUpdateStoreBranding = async (name: string, bannerUrl: string, profileUrl: string) => {
+    await updateStoreBranding(name, bannerUrl, profileUrl);
+    setStore(prev => ({ ...prev, name, bannerUrl, profileUrl }));
+  };
 
   return (
     <StoreContext.Provider value={{
       store, items, cart, orders, isOwner, ownerAccount, setIsOwner,
       registerOwner, loginOwner, loginWithGoogle, resetPassword,
       updateStoreInfo, addItem, updateItem, deleteItem,
-      addToCart, removeFromCart, clearCart, placeOrder, verifyOrderPin, updateStoreBranding: handleUpdateStoreBranding
+      addToCart, removeFromCart, clearCart, placeOrder, verifyOrderPin, 
+      updateStoreBranding: handleUpdateStoreBranding
     }}>
       {children}
     </StoreContext.Provider>
   );
+
 };
 
 export const useStore = () => {
