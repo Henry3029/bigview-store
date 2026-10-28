@@ -24,7 +24,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
 
   return (
     // Outer positioning: px-3 ensures space on both left & right edges of the viewport
-    <div className="absolute top-[51px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+    <div className="absolute top-[50px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
       
       {/* Click-stop wrapper, slightly shifted right to line up with the icon */}
       <div 
@@ -32,10 +32,10 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
         className="relative w-full max-w-[310px] mr-1 pointer-events-auto"
       >
         {/* UPWARD ARROW / CARET POINTER (Points precisely to the user icon) */}
-        <div className="absolute -top-2 right-[22px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-zinc-800 z-10" />
+        <div className="absolute -top-2 right-[25px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-zinc-800 z-10" />
 
         {/* MAIN MODAL BOX: Restored solid dark background, shadow, and rounded edges */}
-        <div className="bg-zinc-900 border border-zinc-800 shadow-2xl rounded-2xl p-4 flex flex-col gap-3.5 text-white max-h-[80vh] overflow-y-auto">
+       <div className="bg-skin-card border border-skin-base shadow-2xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
 
           {/* 1. Yellow Sign In / Register Button */}
           <button 
@@ -43,7 +43,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
               onNavigate('admin');
               onClose();
             }}
-            className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-xl hover:opacity-95 transition shadow-sm text-xs flex items-center justify-center gap-2"
+            className="w-full bg-brand-yellow text-white font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-base flex items-center justify-center gap-2"
           >
             <span>SIGN IN / REGISTER</span>
             <ArrowRight className="w-4 h-4" />
