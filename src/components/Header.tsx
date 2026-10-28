@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Search, Menu, User, ShoppingBag, X, Store, ShieldCheck } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
+import UserProfileModal from './UserProfileModal';
 
 interface HeaderProps {
   onBack?: () => void;
@@ -38,18 +39,22 @@ export default function Header({
                   {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
-              onClick={() => {
-                if (onBack) {
-                  onBack();
-                } else {
-                  window.history.back();
-                }
-              }}
-              className="p-1.5 rounded-full hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
-              aria-label="Go Back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+  onClick={() => {
+    if (onBack) {
+      onBack();
+    } else if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback: If no history exists, safely redirect home/storefront
+      setActiveTab('store'); 
+    }
+  }}
+  className="p-1.5 rounded-full hover:bg-skin-base/20 text-skin-muted hover:text-skin-base transition-colors"
+  aria-label="Go Back"
+>
+  <ArrowLeft className="w-5 h-5" />
+</button>
+
             <button 
               onClick={() => setActiveTab('store')}
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] drop-shadow-sm select-none hover:opacity-90 text-left"
@@ -120,11 +125,11 @@ export default function Header({
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* User Icon / Avatar */}
+           {/* User Icon Trigger */}
             <button
-              onClick={() => setActiveTab('admin')}
+              onClick={() => setIsProfileModalOpen(true)} // <--- Opens profile modal
               className="p-1 rounded-full transition-transform active:scale-95"
-              aria-label="Manage Store"
+              aria-label="Manage Account"
             >
               {userInitial ? (
                 <div className="w-7 h-7 rounded-full bg-[#48BB78] text-white font-bold text-xs flex items-center justify-center shadow-sm">
@@ -176,59 +181,48 @@ export default function Header({
         </div>
       </header>
 
-      {/* MOBILE FULL-PAGE MENU (Appears right below header without covering it, NO slide-in effect) */}
-      {mobileMenuOpen && (
-        <div className="absolute top-[53px] left-0 w-full bg-skin-card border-b border-skin-base/30 shadow-xl z-40 md:hidden p-5 flex flex-col gap-4 animate-in fade-in duration-150">
-          <div className="flex items-center justify-between pb-2 border-b border-skin-base/20">
-            <span className="font-extrabold text-sm text-skin-muted uppercase tracking-wider">Navigation Menu</span>
-            <button 
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-1 rounded-lg bg-skin-base/40 text-skin-muted hover:text-skin-base"
-            >
-              <X className="w-4 h-4" />
-            </button>
+      {/* MOBILE FULL-PAGE MENU */}
+{mobileMenuOpen && (
+ {/* Shop By Categories Section inside Mobile Menu */}
+<div className="py-2">
+  <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
+    Shop By Categories
+  </h3>
+  
+  <div className="grid grid-cols-2 gap-3">
+    {/* Example Dynamic Category Card Loop */}
+    {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
+      // Find the first item in this category to use its image as the category thumbnail
+      const catItem = items.find(item => item.category === category);
+      
+      return (
+        <div 
+          key={index}
+          onClick={() => {
+            // Filter store by category or navigate
+            setMobileMenuOpen(false);
+          }}
+          className="bg-skin-base border border-skin-base/60 rounded-2xl p-2.5 flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group shadow-sm"
+        >
+          {/* Square Image Box */}
+          <div className="w-full h-24 rounded-xl overflow-hidden bg-skin-card mb-2 shadow-inner relative">
+            <img 
+              src={catItem?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"} 
+              alt={category}
+              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            />
           </div>
+          
+          {/* Category Name Below */}
+          <span className="font-bold text-xs text-skin-base truncate w-full">
+            {category}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+</div>
 
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => { setActiveTab('store'); setMobileMenuOpen(false); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                activeTab === 'store' ? 'bg-[#48BB78] text-white shadow-md' : 'bg-skin-base/30 text-skin-base'
-              }`}
-            >
-              <Store className="w-5 h-5" />
-              Storefront View
-            </button>
-            <button
-              onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                activeTab === 'admin' ? 'bg-[#48BB78] text-white shadow-md' : 'bg-skin-base/30 text-skin-base'
-              }`}
-            >
-              <ShieldCheck className="w-5 h-5" />
-              Manage Your Store
-            </button>
-          </div>
-
-          {/* Shop by Category Section */}
-          <div className="pt-3 border-t border-skin-base/20">
-            <h3 className="font-extrabold text-xs text-skin-muted uppercase tracking-wider mb-3">Shop by Category</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div 
-                onClick={() => { setSearchQuery('Building'); setMobileMenuOpen(false); setActiveTab('store'); }}
-                className="flex items-center gap-2.5 p-2 rounded-xl bg-skin-base/30 hover:bg-skin-base/60 cursor-pointer border border-skin-base/20 transition"
-              >
-                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18fcd35?auto=format&fit=crop&w=100&q=80" alt="Building Materials" className="w-9 h-9 rounded-lg object-cover" />
-                <span className="text-xs font-bold line-clamp-1">Building Materials</span>
-              </div>
-              <div 
-                onClick={() => { setSearchQuery('Household'); setMobileMenuOpen(false); setActiveTab('store'); }}
-                className="flex items-center gap-2.5 p-2 rounded-xl bg-skin-base/30 hover:bg-skin-base/60 cursor-pointer border border-skin-base/20 transition"
-              >
-                <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=100&q=80" alt="Household Items" className="w-9 h-9 rounded-lg object-cover" />
-                <span className="text-xs font-bold line-clamp-1">Household Items</span>
-              </div>
-            </div>
           </div>
         </div>
       )}
