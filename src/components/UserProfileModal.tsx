@@ -25,7 +25,6 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
 
   return (
     // Backdrop: dims background and captures outside clicks to close
-    <div 
        <div className="absolute top-[53px] right-2 sm:right-4 w-full max-w-sm z-50 animate-in fade-in zoom-in-95 duration-150">
       {/* Modal Container: Leaves small side gaps (mx-4 max-w-md), wraps content height, prevents closing when clicking inside */}
       <div 
