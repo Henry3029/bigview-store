@@ -22,10 +22,10 @@ export default function Header({
   setSearchQuery,
   onOpenCart,
 }: HeaderProps) {
-  const { cart, ownerAccount, isOwner } = useStore();
+  const { cart, ownerAccount, isOwner, items } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
@@ -36,24 +36,23 @@ export default function Header({
 
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
           
-                  {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
+          {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
-  onClick={() => {
-    if (onBack) {
-      onBack();
-    } else if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      // Fallback: If no history exists, safely redirect home/storefront
-      setActiveTab('store'); 
-    }
-  }}
-  className="p-1.5 rounded-full hover:bg-skin-base/20 text-skin-muted hover:text-skin-base transition-colors"
-  aria-label="Go Back"
->
-  <ArrowLeft className="w-5 h-5" />
-</button>
+              onClick={() => {
+                if (onBack) {
+                  onBack();
+                } else if (window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  setActiveTab('store'); 
+                }
+              }}
+              className="p-1.5 rounded-full hover:bg-skin-base/20 text-skin-muted hover:text-skin-base transition-colors"
+              aria-label="Go Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
 
             <button 
               onClick={() => setActiveTab('store')}
@@ -62,7 +61,6 @@ export default function Header({
               BIGVIEW
             </button>
           </div>
-
 
           {/* MIDDLE: Sleek Opacity Search Bar */}
           <div className="flex-1 max-w-md mx-1">
@@ -75,48 +73,42 @@ export default function Header({
                 onFocus={() => setIsSearchOpen(true)}
                 placeholder="Search items..."
                 className="w-full bg-stone-500/10 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/20 cursor-pointer sm:cursor-text"
-
               />
             </div>
           </div>
           
           {isSearchOpen && (
-  <div className="fixed inset-0 z-50 bg-skin-base flex flex-col p-4 animate-in fade-in duration-150">
-    {/* Search Header */}
-    <div className="flex items-center gap-3 pb-3 border-b border-skin-base">
-      <div className="relative flex-1 flex items-center">
-        <Search className="w-5 h-5 absolute left-3 text-skin-muted" />
-        <input
-          type="text"
-          autoFocus // Automatically pops up the mobile keyboard
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search EL.D.Gate items..."
-          className="w-full bg-skin-card border-2 border-[#48BB78] rounded-full pl-10 pr-4 py-2 text-sm text-skin-base focus:outline-none shadow-md"
-        />
-      </div>
-      <button 
-        onClick={() => setIsSearchOpen(false)}
-        className="font-bold text-sm px-3 py-2 text-skin-muted hover:text-skin-base"
-      >
-        Cancel
-      </button>
-    </div>
+            <div className="fixed inset-0 z-50 bg-skin-base flex flex-col p-4 animate-in fade-in duration-150">
+              <div className="flex items-center gap-3 pb-3 border-b border-skin-base">
+                <div className="relative flex-1 flex items-center">
+                  <Search className="w-5 h-5 absolute left-3 text-skin-muted" />
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search EL.D.Gate items..."
+                    className="w-full bg-skin-card border-2 border-[#48BB78] rounded-full pl-10 pr-4 py-2 text-sm text-skin-base focus:outline-none shadow-md"
+                  />
+                </div>
+                <button 
+                  onClick={() => setIsSearchOpen(false)}
+                  className="font-bold text-sm px-3 py-2 text-skin-muted hover:text-skin-base"
+                >
+                  Cancel
+                </button>
+              </div>
 
-    {/* Search Results Preview or Quick Categories */}
-    <div className="flex-1 overflow-y-auto py-4">
-      <p className="text-xs text-skin-muted font-bold uppercase tracking-wider mb-3">
-        Matching Items ({searchQuery ? 'Filtered' : 'Type to search'})
-      </p>
-      {/* You can map your filtered items list here */}
-    </div>
-  </div>
-)}
+              <div className="flex-1 overflow-y-auto py-4">
+                <p className="text-xs text-skin-muted font-bold uppercase tracking-wider mb-3">
+                  Matching Items ({searchQuery ? 'Filtered' : 'Type to search'})
+                </p>
+              </div>
+            </div>
+          )}
 
-
-          {/* RIGHT: Mobile Menu (Hidden on Desktop), User Profile, Cart */}
+          {/* RIGHT: Mobile Menu, User Profile, Cart */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Mobile Hamburger (Hidden on md and above) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-1.5 rounded-xl hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
@@ -125,9 +117,9 @@ export default function Header({
               <Menu className="w-5 h-5" />
             </button>
 
-           {/* User Icon Trigger */}
+            {/* User Icon Trigger */}
             <button
-              onClick={() => setIsProfileModalOpen(true)} // <--- Opens profile modal
+              onClick={() => setIsProfileModalOpen(true)}
               className="p-1 rounded-full transition-transform active:scale-95"
               aria-label="Manage Account"
             >
@@ -158,7 +150,7 @@ export default function Header({
           </div>
         </div>
 
-        {/* DESKTOP TOP NAVIGATION SUB-BAR (Replaces hamburger on desktop) */}
+        {/* DESKTOP TOP NAVIGATION SUB-BAR */}
         <div className="hidden md:flex items-center justify-center gap-6 border-t border-skin-base/20 py-1.5 bg-skin-card/50 text-xs font-bold">
           <button
             onClick={() => setActiveTab('store')}
@@ -181,48 +173,51 @@ export default function Header({
         </div>
       </header>
 
-   {/* MOBILE FULL-PAGE MENU */}
-{mobileMenuOpen && (
-  <div className="fixed inset-x-0 top-16 bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
-    
-    {/* Shop By Categories Section inside Mobile Menu */}
-    <div className="py-2">
-      <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
-        Shop By Categories
-      </h3>
-      
-      <div className="grid grid-cols-2 gap-3">
-        {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
-          // Find the first item in this category to use its image as the category thumbnail
-          const catItem = items.find(item => item.category === category);
-          
-          return (
-            <div 
-              key={index}
-              onClick={() => {
-                setMobileMenuOpen(false);
-                // Optionally filter your storefront by this category here
-              }}
-              className="bg-skin-base border border-skin-base/60 rounded-2xl p-2.5 flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group shadow-sm"
-            >
-              {/* Square Image Box */}
-              <div className="w-full h-24 rounded-xl overflow-hidden bg-skin-card mb-2 shadow-inner relative">
-                <img 
-                  src={catItem?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"} 
-                  alt={category}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-              </div>
-              
-              {/* Category Name Below */}
-              <span className="font-bold text-xs text-skin-base truncate w-full">
-                {category}
-              </span>
+      {/* MOBILE FULL-PAGE MENU */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-x-0 top-16 bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="py-2">
+            <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
+              Shop By Categories
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
+                const catItem = items.find(item => item.category === category);
+                
+                return (
+                  <div 
+                    key={index}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                    }}
+                    className="bg-skin-base border border-skin-base/60 rounded-2xl p-2.5 flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group shadow-sm"
+                  >
+                    <div className="w-full h-24 rounded-xl overflow-hidden bg-skin-card mb-2 shadow-inner relative">
+                      <img 
+                        src={catItem?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"} 
+                        alt={category}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    </div>
+                    
+                    <span className="font-bold text-xs text-skin-base truncate w-full">
+                      {category}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
 
-  </div>
-)}
+      {/* Profile Modal Integration */}
+      <UserProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+        onNavigate={(tab) => setActiveTab(tab)} 
+      />
+    </>
+  );
+}
