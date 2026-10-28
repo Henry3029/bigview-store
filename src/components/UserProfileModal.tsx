@@ -98,6 +98,5 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
 
       </div>
     </div>
-    </div>
   );
 }
