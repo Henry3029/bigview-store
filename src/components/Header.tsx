@@ -26,6 +26,21 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  
+  import React, { useState, useEffect } from 'react';
+
+// Inside your Header component:
+useEffect(() => {
+  if (mobileMenuOpen || isProfileModalOpen || isSearchOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'unset';
+  }
+  return () => {
+    document.body.style.overflow = 'unset';
+  };
+}, [mobileMenuOpen, isProfileModalOpen, isSearchOpen]);
+
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
@@ -175,7 +190,7 @@ export default function Header({
 
       {/* MOBILE FULL-PAGE MENU */}
       {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-16 bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
+        <div className="fixed inset-x-0 top-[53px] bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
           <div className="py-2">
             <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
               Shop By Categories
