@@ -17,11 +17,21 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   const [lastOrderPin, setLastOrderPin] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'building-materials' | 'household-tools'>('building-materials');
 
-  // Filter items based on the search query from the header
-  const filteredItems = items.filter(item => 
+  // Filter items based on active tab category and search query
+const filteredItems = items.filter(item => {
+  // 1. Tab filtering condition (adjust keywords to match your actual item data categories)
+  const matchesTab = activeTab === 'building-materials' 
+    ? item.category.toLowerCase().includes('building') || item.category.toLowerCase().includes('material')
+    : item.category.toLowerCase().includes('tool') || item.category.toLowerCase().includes('household');
+
+  // 2. Search query condition (if user is searching)
+  const matchesSearch = searchQuery === '' || 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    item.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+  return matchesTab && matchesSearch;
+});
+
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
