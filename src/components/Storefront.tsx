@@ -15,6 +15,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [lastOrderPin, setLastOrderPin] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'building-materials' | 'household-tools'>('building-materials');
 
   // Filter items based on the search query from the header
   const filteredItems = items.filter(item => 
@@ -61,29 +62,63 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
           </div>
         </div>
 
-        {/* Floating Cart Button */}
-        <button 
-          onClick={() => setIsCartOpen(true)}
-          className="absolute top-4 right-4 bg-skin-card text-skin-base p-3 rounded-full shadow-lg flex items-center gap-2 font-bold hover:scale-105 transition"
+      </div>
+      
+      {/* 1. FLEX CONTAINER FOR THE TWO LINKS */}
+      <div className="flex items-center gap-6 border-b border-skin-base/20 px-4">
+        
+        {/* Building Materials Link */}
+        <button
+          onClick={() => setActiveTab('building-materials')}
+          className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
+            activeTab === 'building-materials'
+              ? 'text-black font-black' // Darker/black text when active
+              : 'text-skin-muted hover:text-skin-base'
+          }`}
         >
-          <ShoppingBag className="w-6 h-6 text-brand-yellow" />
-          <span className="bg-brand-yellow text-black text-xs px-2 py-0.5 rounded-full">
-            {cartItemCount}
-          </span>
+          Building Materials
+          {/* Thick active understroke */}
+          {activeTab === 'building-materials' && (
+            <span className="absolute bottom-0 left-0 w-full h-[4px] bg-black rounded-full" />
+          )}
         </button>
+        
+        {/* Household Tools Link */}
+        <button
+          onClick={() => setActiveTab('household-tools')}
+          className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
+            activeTab === 'household-tools'
+              ? 'text-black font-black' // Darker/black text when active
+              : 'text-skin-muted hover:text-skin-base'
+          }`}
+        >
+          Household Tools
+          {/* Thick active understroke */}
+          {activeTab === 'household-tools' && (
+            <span className="absolute bottom-0 left-0 w-full h-[4px] bg-black rounded-full" />
+          )}
+        </button>
+
+      </div>
+      {/* 2. DYNAMIC CONTENT AREA (Renders based on active tab) */}
+      <div className="px-4 py-2">
+        {activeTab === 'building-materials' ? (
+          <div className="animate-in fade-in duration-200">
+            <h3 className="font-bold text-lg text-skin-base mb-2">Building Materials Catalog</h3>
+            <p className="text-xs text-skin-muted">Explore cement, iron rods, roofing sheets, and heavy-duty construction supplies here.</p>
+            {/* Add your building materials grid or components here */}
+          </div>
+        ) : (
+          <div className="animate-in fade-in duration-200">
+            <h3 className="font-bold text-lg text-skin-base mb-2">Household Tools Catalog</h3>
+            <p className="text-xs text-skin-muted">Explore hammers, drills, screwdrivers, and everyday home maintenance tools here.</p>
+            {/* Add your household tools grid or components here */}
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
-        
-        {/* Promo Notice */}
-        <div className="bg-brand-yellow/10 border border-brand-yellow/30 p-4 rounded-xl mb-6 flex items-center gap-3 text-sm">
-          <ShieldCheck className="w-8 h-8 text-brand-yellow shrink-0" />
-          <div>
-            <strong className="text-skin-base block font-bold">App Discount Promo Active!</strong>
-            <span className="text-skin-muted">Pay directly through BIGVIEW to automatically save ₦200 on items above ₦3,000 and ₦100 on items under ₦3,000!</span>
-          </div>
-        </div>
 
         {/* Success Modal for Last Order PIN */}
         {lastOrderPin && (

@@ -91,7 +91,11 @@ useEffect(() => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchOpen(true)}
+                onFocus={() => {
+    setIsSearchOpen(true);
+    setIsProfileModalOpen(false); // Closes the user profile modal
+    setMobileMenuOpen(false);     // Closes mobile menu if open
+  }}
                 placeholder="Search items..."
                 className="w-full bg-stone-500/20 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/30 cursor-pointer sm:cursor-text"
               />

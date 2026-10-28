@@ -23,6 +23,12 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
   if (!isOpen) return null;
 
   return (
+  <>
+  {/* 1. Transparent Backdrop: Covers the entire screen to catch outside clicks */}
+      <div 
+        onClick={onClose} 
+        className="fixed inset-0 z-40 bg-transparent" 
+      />
     // Outer positioning: px-3 ensures space on both left & right edges of the viewport
     <div className="absolute top-[48px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
       
@@ -103,5 +109,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
         </div>
       </div>
     </div>
+    </div>
+    </>
   );
 }
