@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Menu, User, ShoppingBag, X, Store, ShieldCheck } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
@@ -27,8 +27,6 @@ export default function Header({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   
-  import React, { useState, useEffect } from 'react';
-
 // Inside your Header component:
 useEffect(() => {
   if (mobileMenuOpen || isProfileModalOpen || isSearchOpen) {
