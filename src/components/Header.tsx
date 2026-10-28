@@ -53,6 +53,9 @@ useEffect(() => {
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => {
+              	setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
+      setIsProfileModalOpen(false);
+      setIsSearchOpen(false);
                 if (onBack) {
                   onBack();
                 } else if (window.history.length > 1) {
@@ -69,6 +72,9 @@ useEffect(() => {
 
             <button 
               onClick={() => setActiveTab('store')}
+              setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
+      setIsProfileModalOpen(false);
+      setIsSearchOpen(false);
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] hover:bg-stone-500/20 drop-shadow-sm select-none hover:opacity-90 text-left"
             >
               BIGVIEW
@@ -201,7 +207,7 @@ useEffect(() => {
 
       {/* MOBILE FULL-PAGE MENU */}
       {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-[53px] bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
+        <div className="fixed inset-x-0 top-[51px] bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
           <div className="py-2">
             <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
               Shop By Categories
