@@ -24,7 +24,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
 
   return (
     // Outer positioning: px-3 ensures space on both left & right edges of the viewport
-    <div className="absolute top-[48px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+    <div className="absolute top-[48px] inset-x-0 z-50 flex justify-end px-3 rounded-xl sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
       
       {/* Click-stop wrapper, slightly shifted right to line up with the icon */}
       <div 
@@ -32,7 +32,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
         className="relative w-full max-w-[310px] mr-1 pointer-events-auto shadow-2xl"
       >
         {/* UPWARD ARROW / CARET POINTER (Points precisely to the user icon) */}
-        <div className="absolute -top-2 right-[25px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-zinc-800 z-10" />
+        <div className="absolute -top-2 right-[30px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-zinc-800 z-10" />
 
         {/* MAIN MODAL BOX: Restored solid dark background, shadow, and rounded edges */}
        <div className="bg-skin-card border border-skin-base shadow-2xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
@@ -62,7 +62,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
               <div className="p-2.5 rounded-full bg-zinc-900 text-brand-yellow shadow-xs mb-1.5 group-hover:scale-105 transition">
                 <ShoppingBag className="w-5 h-5" />
               </div>
-              <span className="font-bold text-xs text-zinc-200">Your Orders</span>
+              <span className="font-bold text-xs text-skin-inverted">Your Orders</span>
             </div>
 
             {/* Credit Balance Box */}
@@ -72,7 +72,7 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
               <div className="p-2.5 rounded-full bg-zinc-900 text-brand-yellow shadow-xs mb-1.5 group-hover:scale-105 transition">
                 <Wallet className="w-5 h-5" />
               </div>
-              <span className="font-bold text-xs text-zinc-200">Credit Balance</span>
+              <span className="font-bold text-xs text-skin-inverted">Credit Balance</span>
             </div>
           </div>
 
