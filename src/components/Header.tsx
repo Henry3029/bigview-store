@@ -71,10 +71,12 @@ useEffect(() => {
             </button>
 
             <button 
-              onClick={() => setActiveTab('store')}
+              onClick={() => { 
+              setActiveTab('store');
               setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
       setIsProfileModalOpen(false);
       setIsSearchOpen(false);
+      }}
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] hover:bg-stone-500/20 drop-shadow-sm select-none hover:opacity-90 text-left"
             >
               BIGVIEW
