@@ -181,51 +181,48 @@ export default function Header({
         </div>
       </header>
 
-      {/* MOBILE FULL-PAGE MENU */}
+   {/* MOBILE FULL-PAGE MENU */}
 {mobileMenuOpen && (
- {/* Shop By Categories Section inside Mobile Menu */}
-<div className="py-2">
-  <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
-    Shop By Categories
-  </h3>
-  
-  <div className="grid grid-cols-2 gap-3">
-    {/* Example Dynamic Category Card Loop */}
-    {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
-      // Find the first item in this category to use its image as the category thumbnail
-      const catItem = items.find(item => item.category === category);
+  <div className="fixed inset-x-0 top-16 bottom-0 bg-skin-card border-b border-skin-base/30 shadow-2xl z-40 md:hidden p-5 flex flex-col gap-4 overflow-y-auto animate-in fade-in duration-150">
+    
+    {/* Shop By Categories Section inside Mobile Menu */}
+    <div className="py-2">
+      <h3 className="text-xs font-bold text-skin-muted uppercase tracking-wider mb-3 px-1">
+        Shop By Categories
+      </h3>
       
-      return (
-        <div 
-          key={index}
-          onClick={() => {
-            // Filter store by category or navigate
-            setMobileMenuOpen(false);
-          }}
-          className="bg-skin-base border border-skin-base/60 rounded-2xl p-2.5 flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group shadow-sm"
-        >
-          {/* Square Image Box */}
-          <div className="w-full h-24 rounded-xl overflow-hidden bg-skin-card mb-2 shadow-inner relative">
-            <img 
-              src={catItem?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"} 
-              alt={category}
-              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-            />
-          </div>
+      <div className="grid grid-cols-2 gap-3">
+        {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
+          // Find the first item in this category to use its image as the category thumbnail
+          const catItem = items.find(item => item.category === category);
           
-          {/* Category Name Below */}
-          <span className="font-bold text-xs text-skin-base truncate w-full">
-            {category}
-          </span>
-        </div>
-      );
-    })}
-  </div>
-</div>
+          return (
+            <div 
+              key={index}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                // Optionally filter your storefront by this category here
+              }}
+              className="bg-skin-base border border-skin-base/60 rounded-2xl p-2.5 flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group shadow-sm"
+            >
+              {/* Square Image Box */}
+              <div className="w-full h-24 rounded-xl overflow-hidden bg-skin-card mb-2 shadow-inner relative">
+                <img 
+                  src={catItem?.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80"} 
+                  alt={category}
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                />
+              </div>
+              
+              {/* Category Name Below */}
+              <span className="font-bold text-xs text-skin-base truncate w-full">
+                {category}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
 
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
+  </div>
+)}
