@@ -61,7 +61,7 @@ useEffect(() => {
                   setActiveTab('store'); 
                 }
               }}
-              className="p-1.5 rounded-full hover:bg-skin-base/20 text-skin-muted hover:text-skin-base transition-colors"
+              className="p-1.5 rounded-full hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Go Back"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -69,7 +69,7 @@ useEffect(() => {
 
             <button 
               onClick={() => setActiveTab('store')}
-              className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] drop-shadow-sm select-none hover:opacity-90 text-left"
+              className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] hover:bg-stone-500/20 drop-shadow-sm select-none hover:opacity-90 text-left"
             >
               BIGVIEW
             </button>
@@ -85,7 +85,7 @@ useEffect(() => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchOpen(true)}
                 placeholder="Search items..."
-                className="w-full bg-stone-500/10 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/20 cursor-pointer sm:cursor-text"
+                className="w-full bg-stone-500/20 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/30 cursor-pointer sm:cursor-text"
               />
             </div>
           </div>
@@ -123,8 +123,12 @@ useEffect(() => {
           {/* RIGHT: Mobile Menu, User Profile, Cart */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-xl hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
+              onClick={() => {
+      setMobileMenuOpen(!mobileMenuOpen);
+      setIsProfileModalOpen(false); // Close profile modal if open
+      setIsSearchOpen(false); // Close search if open
+    }}
+              className="md:hidden p-1.5 rounded-xl hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Open Menu"
             >
               <Menu className="w-5 h-5" />
@@ -132,8 +136,12 @@ useEffect(() => {
 
             {/* User Icon Trigger */}
             <button
-              onClick={() => setIsProfileModalOpen(true)}
-              className="p-1 rounded-full transition-transform active:scale-95"
+              onClick={() => {
+      setIsProfileModalOpen(true);
+      setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open profile view
+      setIsSearchOpen(false);
+    }}
+              className="p-1 rounded-full hover:​bg-stone-500/20 transition-transform active:scale-95"
               aria-label="Manage Account"
             >
               {userInitial ? (
@@ -149,8 +157,13 @@ useEffect(() => {
 
             {/* Cart Icon */}
             <button
-              onClick={onOpenCart}
-              className="relative p-1.5 rounded-xl hover:bg-skin-base/50 text-skin-muted hover:text-skin-base transition-colors"
+              onClick={() => {
+      onOpenCart();
+      setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
+      setIsProfileModalOpen(false);
+      setIsSearchOpen(false);
+    }}
+              className="relative p-1.5 rounded-xl hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Cart"
             >
               <ShoppingBag className="w-5 h-5" />

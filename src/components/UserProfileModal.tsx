@@ -26,34 +26,12 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
   return (
     // Backdrop: dims background and captures outside clicks to close
     <div 
-      onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
-    >
+       <div className="absolute top-[53px] right-2 sm:right-4 w-full max-w-sm z-50 animate-in fade-in zoom-in-95 duration-150">
       {/* Modal Container: Leaves small side gaps (mx-4 max-w-md), wraps content height, prevents closing when clicking inside */}
       <div 
         onClick={(e) => e.stopPropagation()} 
-        className="w-full max-w-md bg-skin-card border border-skin-base rounded-3xl shadow-2xl p-5 sm:p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+        className="bg-skin-card border border-skin-base shadow-2xl p-4 sm:p-5 flex flex-col gap-4 max-h-[85vh] overflow-y-auto"
       >
-        
-        {/* Top Header Row with Close (X) Button */}
-        <div className="flex items-center justify-between pb-3 border-b border-skin-base/60">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-brand-yellow/20 text-brand-yellow flex items-center justify-center font-bold">
-              <User className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-extrabold text-sm sm:text-base tracking-tight">Account & Profile</h3>
-              <p className="text-[11px] text-skin-muted">EL.D.Gate Customer Portal</p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-full bg-skin-base text-skin-muted hover:text-skin-base transition"
-            aria-label="Close Modal"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
 
         {/* 1. Yellow Signup / Register Button */}
         <button 
@@ -61,9 +39,9 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
             onNavigate('admin');
             onClose();
           }}
-          className="w-full bg-brand-yellow text-black font-extrabold py-3 rounded-xl hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2"
+          className="w-full bg-brand-yellow text-white font-extrabold py-3 rounded-xl hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2"
         >
-          <span>Sign Up / Register Store Access</span>
+          <span>SING IN / REGISTER</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
@@ -75,48 +53,56 @@ export default function UserProfileModal({ isOpen, onClose, onNavigate }: UserPr
               onNavigate('store');
               onClose();
             }}
-            className="bg-skin-base/60 border border-skin-base/60 p-3.5 rounded-2xl flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group"
+            className="bg-skin-base/60 border  p-3.5  flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group"
           >
-            <div className="p-2.5 rounded-xl bg-skin-card text-brand-yellow shadow-xs mb-2 group-hover:scale-105 transition">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="p-2.5 rounded-xl ​bg-zinc-900 text-brand-yellow shadow-xs mb-2 group-hover:scale-105 transition">
+              <ShoppingBag className="w-8 h-8" />
             </div>
             <span className="font-bold text-xs text-skin-base">Your Orders</span>
-            <span className="text-[10px] text-skin-muted">Track pickups & PINs</span>
           </div>
 
           {/* Credit Balance Box */}
           <div 
             className="bg-skin-base/60 border border-skin-base/60 p-3.5 rounded-2xl flex flex-col items-center text-center cursor-pointer hover:border-brand-yellow transition group"
           >
-            <div className="p-2.5 rounded-xl bg-skin-card text-brand-yellow shadow-xs mb-2 group-hover:scale-105 transition">
-              <Wallet className="w-5 h-5" />
+            <div className="p-2.5 rounded-xl ​bg-zinc-900 text-brand-yellow shadow-xs mb-2 group-hover:scale-105 transition">
+              <Wallet className="w-8 h-8" />
             </div>
             <span className="font-bold text-xs text-skin-base">Credit Balance</span>
-            <span className="text-[10px] text-brand-yellow font-extrabold">₦0.00 Active</span>
           </div>
         </div>
 
         {/* 3. Bottom Vertical List */}
         <div className="flex flex-col gap-1 pt-2 border-t border-skin-base/60">
           <button onClick={onClose} className="flex items-center gap-3 p-2.5 rounded-xl text-xs sm:text-sm font-semibold text-skin-base hover:bg-skin-base transition text-left">
+          <div className="border-b border-skin-base pb-2">
             <Star className="w-4 h-4 text-brand-yellow" />
             <span>Your Reviews</span>
+            </div>
           </button>
           <button onClick={onClose} className="flex items-center gap-3 p-2.5 rounded-xl text-xs sm:text-sm font-semibold text-skin-base hover:bg-skin-base transition text-left">
+          <div className="border-b border-skin-base pb-2">
             <Clock className="w-4 h-4 text-skin-muted" />
             <span>Browsing History</span>
+            </div>
           </button>
           <button onClick={onClose} className="flex items-center gap-3 p-2.5 rounded-xl text-xs sm:text-sm font-semibold text-skin-base hover:bg-skin-base transition text-left">
+          <div className="border-b border-skin-base pb-2">
             <MapPin className="w-4 h-4 text-skin-muted" />
             <span>Delivery / Pickup Address</span>
+            </div>
           </button>
           <button onClick={onClose} className="flex items-center gap-3 p-2.5 rounded-xl text-xs sm:text-sm font-semibold text-skin-base hover:bg-skin-base transition text-left">
+          <div className="border-b border-skin-base pb-2">
             <Headphones className="w-4 h-4 text-skin-muted" />
             <span>Customer Support</span>
+            </div>
           </button>
           <button onClick={() => { onNavigate('admin'); onClose(); }} className="flex items-center gap-3 p-2.5 rounded-xl text-xs sm:text-sm font-semibold text-skin-base hover:bg-skin-base transition text-left">
+          <div className="border-b border-skin-base pb-2">
             <Settings className="w-4 h-4 text-skin-muted" />
             <span>Settings</span>
+            </div>
           </button>
         </div>
 
