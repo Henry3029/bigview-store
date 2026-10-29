@@ -33,81 +33,86 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess }: Custom
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-skin-card border border-skin-base p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6 relative">
-        
-        {/* Close Button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-skin-muted hover:text-skin-base transition rounded-full hover:bg-skin-base"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 bg-skin-base z-50 flex flex-col items-center justify-center p-6 animate-in fade-in duration-200 overflow-y-auto">
+      
+      {/* Top Close Button (Top Far Right / Left aligned as desired) */}
+      <button 
+        onClick={onClose}
+        className="absolute top-6 left-6 p-2.5 text-skin-muted hover:text-skin-base transition rounded-full hover:bg-skin-base border border-skin-base shadow-sm"
+      >
+        <X className="w-5 h-5" />
+      </button>
 
-        {/* Header */}
-        <div className="text-center space-y-1">
-          <h2 className="text-xl font-black text-skin-base">
+      {/* Full-Page Content Stack */}
+      <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center my-auto">
+        
+        {/* Header Branding */}
+        <div className="space-y-2 flex flex-col items-center">
+          <div className="w-16 h-16 bg-brand-yellow text-black font-black rounded-2xl flex items-center justify-center text-xl shadow-md">
+            <User className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-skin-base tracking-tight">
             {isSignInMode ? 'Sign In to Your Account' : 'Create Customer Account'}
           </h2>
-          <p className="text-xs text-skin-muted">
+          <p className="text-xs sm:text-sm text-skin-muted max-w-xs">
             {isSignInMode 
               ? 'Access your saved items, orders, and pickup PINs.' 
               : 'Save your cart, track your orders, and enjoy app discounts at EL.D.Gate.'}
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form Flow */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4 text-left pt-2">
           {!isSignInMode && (
-            <div>
-              <label className="text-xs text-skin-muted block mb-1 font-bold">Full Name</label>
+            <div className="space-y-1.5">
+              <label className="text-xs text-skin-muted block font-bold uppercase tracking-wider">Full Name</label>
               <input 
                 type="text" 
                 required
                 placeholder="e.g. Adebayo Johnson"
                 value={nameInput}
                 onChange={e => setNameInput(e.target.value)}
-                className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base"
+                className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-2xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
               />
             </div>
           )}
 
-          <div>
-            <label className="text-xs text-skin-muted block mb-1 font-bold">Email Address</label>
+          <div className="space-y-1.5">
+            <label className="text-xs text-skin-muted block font-bold uppercase tracking-wider">Email Address</label>
             <input 
               type="email" 
               required
               placeholder="Enter your email"
               value={emailInput}
               onChange={e => setEmailInput(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base"
+              className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-2xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
             />
           </div>
 
-          <div>
-            <label className="text-xs text-skin-muted block mb-1 font-bold">Password</label>
+          <div className="space-y-1.5">
+            <label className="text-xs text-skin-muted block font-bold uppercase tracking-wider">Password</label>
             <input 
               type="password" 
               required
               placeholder="Enter your password"
               value={passwordInput}
               onChange={e => setPasswordInput(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base"
+              className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-2xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
             />
           </div>
 
           <button 
             type="submit"
-            className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-md active:scale-95 text-base tracking-wide mt-2"
+            className="w-full bg-brand-yellow text-black font-extrabold py-4 rounded-2xl hover:opacity-90 transition shadow-lg text-sm mt-2"
           >
             {isSignInMode ? 'Sign In & Proceed' : 'Create Account & Proceed'}
           </button>
         </form>
 
         {/* Toggle Mode */}
-        <div className="text-center text-xs text-skin-muted pt-1">
+        <div className="text-xs text-skin-muted pt-1">
           {isSignInMode ? (
-            <>
+            <p>
               Don't have an account?{' '}
               <button 
                 type="button"
@@ -116,9 +121,9 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess }: Custom
               >
                 Register
               </button>
-            </>
+            </p>
           ) : (
-            <>
+            <p>
               Already have an account?{' '}
               <button 
                 type="button"
@@ -127,7 +132,7 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess }: Custom
               >
                 Sign In
               </button>
-            </>
+            </p>
           )}
         </div>
 
