@@ -21,7 +21,7 @@ export default function SecretOwnerPage() {
 
   // If already logged in, render her admin dashboard directly
   if (isOwner) {
-    return <AdminDashboard onNavigate={() => {}} />;
+    return <AdminDashboard />;
   }
 
   // Otherwise, show a clean, hidden login screen exclusively for her

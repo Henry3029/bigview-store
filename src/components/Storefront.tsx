@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useStore } from '@/context/StoreContext';
 import { calculateDiscount } from '@/lib/pricing';
 import { ShoppingBag, Search, CheckCircle, ShieldCheck } from 'lucide-react';
-import CustomerAuthModal from '@/components/CustomerAuthModal';
+import CustomerAuthModal from '@/components/CustomerAuthScreen';
 
 interface StorefrontProps {
   searchQuery?: string;
