@@ -1,24 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useStore } from '@/context/StoreContext';
+import { StoreProvider, useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/AdminDashboard';
 import { Lock } from 'lucide-react';
+import { getItems, getStoreInfo } from '@/app/actions';
+import { Item, StoreInfo } from '@/types';
 
-export default function SecretOwnerPage() {
-  // Prevent static build rendering crash
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const storeContext = useStore();
+// 1. Internal component that handles the login and dashboard logic with useStore access
+function OwnerPortalContent() {
+  const { isOwner, loginOwner } = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  if (!isMounted) return null;
-
-  const { isOwner, loginOwner } = storeContext;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,5 +72,51 @@ export default function SecretOwnerPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// 2. Main Page Component that loads data and wraps everything in StoreProvider
+export default function SecretOwnerPortalPage() {
+  const [initialItems, setInitialItems] = useState<Item[]>([]);
+  const [initialStore, setInitialStore] = useState<StoreInfo>({
+    name: 'EL.D.Gate',
+    bannerUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+    profileUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+    ownerEmail: 'mom@eldgate.ng',
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPortalData() {
+      try {
+        const [itemsData, storeData] = await Promise.all([getItems(), getStoreInfo()]);
+        if (itemsData) setInitialItems(itemsData);
+        if (storeData) setInitialStore(storeData);
+      } catch (err) {
+        console.error('Failed to load portal data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPortalData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-skin-base flex items-center justify-center text-skin-base">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 bg-brand-yellow text-black font-black rounded-xl animate-spin mx-auto flex items-center justify-center">
+            🔒
+          </div>
+          <p className="font-bold text-sm">Securing Owner Portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <StoreProvider initialItems={initialItems} initialStore={initialStore}>
+      <OwnerPortalContent />
+    </StoreProvider>
   );
 }
