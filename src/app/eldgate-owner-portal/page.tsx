@@ -1,15 +1,24 @@
-// src/app/eldgate-owner-portal/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/AdminDashboard';
 import { Lock } from 'lucide-react';
 
 export default function SecretOwnerPage() {
-  const { isOwner, loginOwner } = useStore();
+  // Prevent static build rendering crash
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const storeContext = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  if (!isMounted) return null;
+
+  const { isOwner, loginOwner } = storeContext;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +33,7 @@ export default function SecretOwnerPage() {
     return <AdminDashboard />;
   }
 
-  // Otherwise, show a clean, hidden login screen exclusively for her
+  // Otherwise, show the secure login screen
   return (
     <div className="min-h-screen flex items-center justify-center bg-skin-base px-4">
       <div className="w-full max-w-sm bg-skin-card border border-skin-base p-8 rounded-3xl shadow-2xl space-y-6">
