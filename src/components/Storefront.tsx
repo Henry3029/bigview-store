@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useStore } from '@/context/StoreContext';
 import { calculateDiscount } from '@/lib/pricing';
 import { ShoppingBag, Search, CheckCircle, ShieldCheck } from 'lucide-react';
+import CustomerAuthModal from '@/components/CustomerAuthModal';
 
 interface StorefrontProps {
   searchQuery?: string;
@@ -12,39 +13,49 @@ interface StorefrontProps {
 export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   const { store, items, cart, addToCart, placeOrder } = useStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [customerName, setCustomerName] = useState('');
+  const [showCustomerAuthModal, setShowCustomerAuthModal] = useState(false);
+  const [currentCustomer, setCurrentCustomer] = useState<{ name: string; email: string; phone?: string } | null>(null);
   const [customerPhone, setCustomerPhone] = useState('');
   const [lastOrderPin, setLastOrderPin] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'building-materials' | 'household-tools'>('building-materials');
 
   // Filter items based on active tab category and search query
-const filteredItems = items.filter(item => {
-  // 1. Tab filtering condition (adjust keywords to match your actual item data categories)
-  const matchesTab = activeTab === 'building-materials' 
-    ? item.category.toLowerCase().includes('building') || item.category.toLowerCase().includes('material')
-    : item.category.toLowerCase().includes('tool') || item.category.toLowerCase().includes('household');
+  const filteredItems = items.filter(item => {
+    const matchesTab = activeTab === 'building-materials' 
+      ? item.category.toLowerCase().includes('building') || item.category.toLowerCase().includes('material')
+      : item.category.toLowerCase().includes('tool') || item.category.toLowerCase().includes('household');
 
-  // 2. Search query condition (if user is searching)
-  const matchesSearch = searchQuery === '' || 
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = searchQuery === '' || 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-  return matchesTab && matchesSearch;
-});
-
+    return matchesTab && matchesSearch;
+  });
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleCheckout = async (e: React.FormEvent) => {
+  const handleCheckoutClick = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName || !customerPhone) {
-      alert('Please enter your name and phone number for pickup/delivery.');
+    
+    // MANDATORY AUTH CHECK AT CHECKOUT:
+    if (!currentCustomer) {
+      setIsCartOpen(false); // Close cart drawer to show modal clearly
+      setShowCustomerAuthModal(true);
       return;
     }
-    const order = await placeOrder(customerName, customerPhone);
+
+    if (!customerPhone) {
+      alert('Please enter your phone number for pickup/delivery updates.');
+      return;
+    }
+
+    executeOrder(currentCustomer.name, customerPhone);
+  };
+
+  const executeOrder = async (name: string, phone: string) => {
+    const order = await placeOrder(name, phone);
     setLastOrderPin(order.verificationPin);
     setIsCartOpen(false);
-    setCustomerName('');
     setCustomerPhone('');
   };
 
@@ -71,23 +82,20 @@ const filteredItems = items.filter(item => {
             <p className="text-xs text-gray-200 font-medium">Official Vendor Store</p>
           </div>
         </div>
-
       </div>
       
       {/* 1. FLEX CONTAINER FOR THE TWO LINKS */}
       <div className="flex items-center gap-6 border-b border-skin-base/20 px-4">
-        
         {/* Building Materials Link */}
         <button
           onClick={() => setActiveTab('building-materials')}
           className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
             activeTab === 'building-materials'
-              ? 'text-black font-black' // Darker/black text when active
+              ? 'text-black font-black'
               : 'text-skin-muted hover:text-skin-base'
           }`}
         >
           Building Materials
-          {/* Thick active understroke */}
           {activeTab === 'building-materials' && (
             <span className="absolute bottom-0 left-0 w-full h-[4px] bg-black rounded-full" />
           )}
@@ -98,31 +106,28 @@ const filteredItems = items.filter(item => {
           onClick={() => setActiveTab('household-tools')}
           className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
             activeTab === 'household-tools'
-              ? 'text-black font-black' // Darker/black text when active
+              ? 'text-black font-black'
               : 'text-skin-muted hover:text-skin-base'
           }`}
         >
           Household Tools
-          {/* Thick active understroke */}
           {activeTab === 'household-tools' && (
             <span className="absolute bottom-0 left-0 w-full h-[4px] bg-black rounded-full" />
           )}
         </button>
-
       </div>
-      {/* 2. DYNAMIC CONTENT AREA (Renders based on active tab) */}
+
+      {/* 2. DYNAMIC CONTENT AREA */}
       <div className="px-4 py-2">
         {activeTab === 'building-materials' ? (
           <div className="animate-in fade-in duration-200">
             <h3 className="font-bold text-lg text-skin-base mb-2">Building Materials Catalog</h3>
             <p className="text-xs text-skin-muted">Explore cement, iron rods, roofing sheets, and heavy-duty construction supplies here.</p>
-            {/* Add your building materials grid or components here */}
           </div>
         ) : (
           <div className="animate-in fade-in duration-200">
             <h3 className="font-bold text-lg text-skin-base mb-2">Household Tools Catalog</h3>
             <p className="text-xs text-skin-muted">Explore hammers, drills, screwdrivers, and everyday home maintenance tools here.</p>
-            {/* Add your household tools grid or components here */}
           </div>
         )}
       </div>
@@ -204,7 +209,7 @@ const filteredItems = items.filter(item => {
           <div className="w-full max-w-md bg-skin-card h-full p-6 flex flex-col shadow-2xl overflow-y-auto">
             <div className="flex justify-between items-center mb-6 border-b border-skin-base pb-4">
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-brand-yellow" /> Your Cart
+                <ShoppingBag className="w-5 h-5 text-brand-yellow" /> Your Cart ({cartItemCount})
               </h2>
               <button 
                 onClick={() => setIsCartOpen(false)}
@@ -234,36 +239,33 @@ const filteredItems = items.filter(item => {
                   })}
                 </div>
 
-                <form onSubmit={handleCheckout} className="border-t border-skin-base pt-4 space-y-4">
-                  <h3 className="font-bold text-sm">Customer Details for Pickup</h3>
-                  <div>
-                    <label className="text-xs text-skin-muted block mb-1">Full Name</label>
-                    <input 
-                      type="text" 
-                      required
-                      placeholder="e.g. Adebayo Johnson"
-                      value={customerName}
-                      onChange={e => setCustomerName(e.target.value)}
-                      className="w-full bg-skin-base border border-skin-base p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand-yellow"
-                    />
+                <form onSubmit={handleCheckoutClick} className="border-t border-skin-base pt-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-sm">Checkout Details</h3>
+                    {currentCustomer && (
+                      <span className="text-[11px] text-green-600 font-bold bg-green-500/10 px-2 py-0.5 rounded-full">
+                        Signed in as {currentCustomer.name}
+                      </span>
+                    )}
                   </div>
+
                   <div>
-                    <label className="text-xs text-skin-muted block mb-1">Phone Number</label>
+                    <label className="text-xs text-skin-muted block mb-1">Phone Number for Pickup</label>
                     <input 
                       type="tel" 
                       required
                       placeholder="e.g. 08012345678"
                       value={customerPhone}
                       onChange={e => setCustomerPhone(e.target.value)}
-                      className="w-full bg-skin-base border border-skin-base p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand-yellow"
+                      className="w-full bg-skin-base border border-skin-base p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand-yellow text-skin-base"
                     />
                   </div>
 
                   <button 
                     type="submit"
-                    className="w-full bg-brand-yellow text-black font-bold py-3 rounded-xl hover:opacity-90 transition shadow-lg mt-2"
+                    className="w-full bg-brand-yellow text-black font-extrabold py-3 rounded-xl hover:opacity-90 transition shadow-lg mt-2"
                   >
-                    Pay Online & Get App Discount
+                    {currentCustomer ? 'Pay Online & Get App Discount' : 'Sign In / Register to Checkout'}
                   </button>
                   <p className="text-[11px] text-center text-skin-muted">Secured by BIGVIEW. Generates instant 6-digit PIN for store pickup.</p>
                 </form>
@@ -272,6 +274,18 @@ const filteredItems = items.filter(item => {
           </div>
         </div>
       )}
+
+      {/* Customer Authentication Modal (Triggered Automatically at Checkout if not signed in) */}
+      <CustomerAuthModal 
+        isOpen={showCustomerAuthModal}
+        onClose={() => setShowCustomerAuthModal(false)}
+        onSuccess={(userData) => {
+          setCurrentCustomer(userData);
+          setShowCustomerAuthModal(false);
+          setIsCartOpen(true); // Re-open cart so they can finish checking out smoothly
+          alert(`Welcome, ${userData.name}! You are now signed in. You can complete your checkout.`);
+        }}
+      />
     </div>
   );
 }
