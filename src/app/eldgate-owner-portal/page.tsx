@@ -249,11 +249,11 @@ function OwnerPortalAuthContent() {
 // 2. Main Page Route Wrapper with StoreProvider
 export default function SecretOwnerPortalPage() {
   const [initialItems, setInitialItems] = useState<Item[]>([]);
-  const [initialStore, setInitialStore] =<StoreInfo>({
+  const [initialStore, setInitialStore] = useState<StoreInfo>({
     name: 'EL.D.Gate',
     bannerUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
     profileUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    ownerEmail: 'mom@eldgate.ng',
+    ownerEmail: 'mom@eldgate.ng'
   });
   const [loading, setLoading] = useState(true);
 
