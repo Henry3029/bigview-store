@@ -16,16 +16,19 @@ function OwnerPortalAuthContent() {
   // Basic Auth Inputs
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [storeNameInput, setStoreNameInput] = useState('EL.D.Gate');
+  const [storeNameInput, setStoreNameInput] = useState('BIGVIEW Store');
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // Additional Registration Inputs (Fixed missing states)
+  // Additional Registration Inputs
   const [firstNameInput, setFirstNameInput] = useState('');
   const [surnameInput, setSurnameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+
+  // Validation Errors State
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Recovery Modals State
   const [showTroubleModal, setShowTroubleModal] = useState(false);
@@ -34,11 +37,30 @@ function OwnerPortalAuthContent() {
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const newErrors: { [key: string]: string } = {};
+
+    if (!emailInput.trim()) newErrors.email = 'Please enter your email address.';
+    if (!passwordInput.trim()) newErrors.password = 'Please enter your password.';
+
     if (isRegistering) {
+      if (!firstNameInput.trim()) newErrors.firstName = 'Please enter your first name.';
+      if (!surnameInput.trim()) newErrors.surname = 'Please enter your surname.';
+      if (!storeNameInput.trim()) newErrors.storeName = 'Please enter your store name.';
+      if (!phoneInput.trim()) newErrors.phone = 'Please enter your phone number.';
       if (passwordInput !== confirmPasswordInput) {
-        alert('Passwords do not match.');
-        return;
+        newErrors.confirmPassword = 'Passwords do not match.';
       }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+
+    if (isRegistering) {
       const success = registerOwner(emailInput, passwordInput, storeNameInput);
       if (success) {
         alert('Store account registered successfully! Welcome to BIGVIEW Store.');
@@ -58,39 +80,38 @@ function OwnerPortalAuthContent() {
 
   // Otherwise, render full-page immersive view
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-t-1px p-b-12 bg-skin-base text-skin-base relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-10 bg-skin-base text-skin-base relative">
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         
         {/* Top Logo & Branding */}
-        <div className="space-y-1 flex flex-col items-center">
-          <h1 className="text-2xl sm:text-4xl font-black tracking-wider uppercase font-sans text-[#D4AF37]">
-  BIGVIEW
-</h1>
-
+        <div className="space-y-1.5 flex flex-col items-center">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-wider uppercase font-sans text-[#D4AF37]">
+            BIGVIEW
+          </h1>
 
           <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
-  <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-  <span>All data is safeguarded</span>
-</p>
+            <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span>All data is safeguarded</span>
+          </p>
         </div>
 
-        {/* Full-Width Form Flow */}
-        <form onSubmit={handleAuthSubmit} className="w-full space-y-4 text-left pt-2">
+        {/* Full-Width Form Flow with proper spacing (`space-y-4`) */}
+        <form onSubmit={handleAuthSubmit} noValidate className="w-full space-y-4 text-left pt-2">
           
           {isRegistering && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 {/* First Name */}
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-xs font-bold text-skin-muted block">First Name</label>
                   <input 
                     type="text" 
                     placeholder="e.g. John"
                     value={firstNameInput}
                     onChange={e => { setFirstNameInput(e.target.value); setErrors({ ...errors, firstName: '' }); }}
-                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                       errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                     }`}
                   />
@@ -98,13 +119,14 @@ function OwnerPortalAuthContent() {
                 </div>
 
                 {/* Surname */}
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-xs font-bold text-skin-muted block">Surname</label>
                   <input 
                     type="text" 
+                    placeholder="e.g. Doe"
                     value={surnameInput}
                     onChange={e => { setSurnameInput(e.target.value); setErrors({ ...errors, surname: '' }); }}
-                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                       errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                     }`}
                   />
@@ -113,13 +135,14 @@ function OwnerPortalAuthContent() {
               </div>
 
               {/* Store Name */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-skin-muted block">Store Name</label>
                 <input 
                   type="text" 
+                  placeholder="e.g. BIGVIEW Store"
                   value={storeNameInput}
                   onChange={e => { setStoreNameInput(e.target.value); setErrors({ ...errors, storeName: '' }); }}
-                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                     errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                   }`}
                 />
@@ -127,13 +150,14 @@ function OwnerPortalAuthContent() {
               </div>
 
               {/* Phone Number */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-skin-muted block">Phone Number</label>
                 <input 
                   type="tel" 
+                  placeholder="+234..."
                   value={phoneInput}
                   onChange={e => { setPhoneInput(e.target.value); setErrors({ ...errors, phone: '' }); }}
-                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                     errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                   }`}
                 />
@@ -143,13 +167,14 @@ function OwnerPortalAuthContent() {
           )}
 
           {/* Email Address */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-skin-muted block">Email Address</label>
             <input 
               type="email" 
+              placeholder="you@example.com"
               value={emailInput}
               onChange={e => { setEmailInput(e.target.value); setErrors({ ...errors, email: '' }); }}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
               }`}
             />
@@ -157,14 +182,14 @@ function OwnerPortalAuthContent() {
           </div>
 
           {/* Password */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-skin-muted block">Password</label>
             <input 
               type="password" 
               placeholder="••••••••"
               value={passwordInput}
               onChange={e => { setPasswordInput(e.target.value); setErrors({ ...errors, password: '' }); }}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.password ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
               }`}
             />
@@ -173,14 +198,14 @@ function OwnerPortalAuthContent() {
 
           {/* Confirm Password */}
           {isRegistering && (
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-xs font-bold text-skin-muted block">Confirm Password</label>
               <input 
                 type="password" 
                 placeholder="••••••••"
                 value={confirmPasswordInput}
                 onChange={e => { setConfirmPasswordInput(e.target.value); setErrors({ ...errors, confirmPassword: '' }); }}
-                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                 }`}
               />
@@ -190,7 +215,7 @@ function OwnerPortalAuthContent() {
 
           <button 
             type="submit"
-            className="w-full bg-brand-yellow text-black font-extrabold py-4 rounded-full hover:opacity-90 transition shadow-lg text-sm mt-2"
+            className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-lg text-sm mt-3"
           >
             {isRegistering ? 'Register Your Store' : 'Sign In'}
           </button>
@@ -220,7 +245,7 @@ function OwnerPortalAuthContent() {
           <div>
             <button 
               onClick={() => setShowTroubleModal(true)}
-              className="pt-2 text-xs text-skin-muted hover:text-skin-base underline font-medium"
+              className="text-xs text-skin-muted hover:text-skin-base underline font-medium"
             >
               Trouble signing in?
             </button>
@@ -228,7 +253,7 @@ function OwnerPortalAuthContent() {
         )}
 
         {/* Demarcation */}
-        <div className="w-full relative flex items-center justify-center py-2">
+        <div className="w-full relative flex items-center justify-center py-1">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-skin-base/15" /></div>
           <span className="relative bg-skin-base px-4 text-xs text-skin-muted uppercase font-bold tracking-widest">OR</span>
         </div>
@@ -236,14 +261,14 @@ function OwnerPortalAuthContent() {
         {/* Google Auth Button */}
         <button 
           onClick={() => signIn('google')}
-          className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base hover:opacity-95 transition-opacity"
+          className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base shadow-sm hover:opacity-95 transition-opacity"
         >
           <GoogleIcon className="w-5 h-5 shrink-0" />
           <span>Continue with Google</span>
         </button>
       </div>
 
-      {/* 1. TROUBLE SIGNING IN MODAL (Fixed nested wrapper bug) */}
+      {/* 1. TROUBLE SIGNING IN MODAL */}
       {showTroubleModal && (
         <div 
           onClick={() => setShowTroubleModal(false)}
