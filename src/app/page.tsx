@@ -5,6 +5,7 @@ import { StoreProvider } from '@/context/StoreContext';
 import Storefront from '@/components/Storefront';
 import AdminDashboard from '@/components/AdminDashboard';
 import Header from '@/components/Header';
+import PageSkeleton from '@/components/PageSkeleton';
 import Footer from '@/components/Footer';
 import { getItems, getStoreInfo } from '@/app/actions';
 
@@ -36,16 +37,7 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-skin-base flex items-center justify-center text-skin-base">
-        <div className="text-center space-y-3">
-          <div className="w-12 h-12 bg-[#D4AF37] text-black font-black rounded-xl animate-spin mx-auto flex items-center justify-center">
-            BV
-          </div>
-          <p className="font-bold text-sm">Loading EL.D.Gate Store...</p>
-        </div>
-      </div>
-    );
+     return <PageSkeleton />;
   }
 
   return (
