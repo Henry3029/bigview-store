@@ -24,10 +24,8 @@ function OwnerPortalAuthContent() {
   const [surnameInput, setSurnameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-
-  // Validation Errors State
+  // Validation Errors State (Defined only ONCE here)
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Recovery Modals State
@@ -97,7 +95,7 @@ function OwnerPortalAuthContent() {
           </p>
         </div>
 
-        {/* Full-Width Form Flow with proper spacing (`space-y-4`) */}
+        {/* Full-Width Form Flow with Custom Validation & noValidate */}
         <form onSubmit={handleAuthSubmit} noValidate className="w-full space-y-4 text-left pt-2">
           
           {isRegistering && (
