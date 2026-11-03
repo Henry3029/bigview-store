@@ -78,15 +78,15 @@ function OwnerPortalAuthContent() {
 
   // Otherwise, render full-page immersive view
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-10 bg-skin-base text-skin-base relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-4 pb-12 bg-skin-base text-skin-base relative">
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         
         {/* Top Logo & Branding */}
         <div className="space-y-1.5 flex flex-col items-center">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-wider uppercase font-sans text-[#D4AF37]">
-            BIGVIEW
+          <h1 className="text-3xl sm:text-4xl font-black font-sans text-[#D4AF37]">
+            Bigview Store
           </h1>
 
           <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
@@ -118,7 +118,7 @@ function OwnerPortalAuthContent() {
 
                 {/* Surname */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-skin-muted block">Surname</label>
+                  <label className="text-xs font-bold text-skin-muted block">Last Name</label>
                   <input 
                     type="text" 
                     placeholder="e.g. Doe"
@@ -252,7 +252,7 @@ function OwnerPortalAuthContent() {
 
         {/* Demarcation */}
         <div className="w-full relative flex items-center justify-center py-1">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-skin-base/15" /></div>
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-skin-base/5" /></div>
           <span className="relative bg-skin-base px-4 text-xs text-skin-muted uppercase font-bold tracking-widest">OR</span>
         </div>
 
@@ -268,14 +268,14 @@ function OwnerPortalAuthContent() {
 
       {/* 1. TROUBLE SIGNING IN MODAL */}
       {showTroubleModal && (
-        <div 
-          onClick={() => setShowTroubleModal(false)}
-          className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-4 transition-opacity animate-in fade-in duration-200"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-5 animate-in slide-in-from-bottom duration-200 text-left"
-          >
+  <div 
+    onClick={() => setShowTroubleModal(false)}
+    className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity animate-in fade-in duration-200"
+  >
+    <div 
+      onClick={(e) => e.stopPropagation()}
+      className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-5 animate-in slide-in-from-bottom-full duration-300 ease-out text-left"
+    >
             <div className="flex justify-between items-center border-b border-skin-base pb-3">
               <h3 className="font-extrabold text-base">Trouble Signing In?</h3>
               <button onClick={() => setShowTroubleModal(false)} className="text-skin-muted hover:text-skin-base font-bold text-lg">✕</button>
