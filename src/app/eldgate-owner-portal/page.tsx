@@ -56,108 +56,141 @@ function OwnerPortalAuthContent() {
 
   // Otherwise, render full-page immersive view
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 bg-skin-base text-skin-base relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-t-1px p-b-12 bg-skin-base text-skin-base relative">
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         
         {/* Top Logo & Branding */}
         <div className="space-y-1 flex flex-col items-center">
-          <h1 className="text-2xl sm:text-4xl font-black tracking-wider uppercase font-sans">
-            <span className="text-[#D4AF37]">BIG</span>
-            <span className="text-white">VIEW</span>
-          </h1>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-wider uppercase font-sans text-[#D4AF37]">
+  BIGVIEW
+</h1>
 
-          <p className="text-xs sm:text-sm text-skin-muted max-w-xs flex items-center justify-center gap-1.5 text-emerald-500 font-medium">
-            <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span>All data is safeguarded</span>
-          </p>
+
+          <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
+  <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+  <span>All data is safeguarded</span>
+</p>
         </div>
 
         {/* Full-Width Form Flow */}
         <form onSubmit={handleAuthSubmit} className="w-full space-y-4 text-left pt-2">
+          
           {isRegistering && (
             <>
               <div className="grid grid-cols-2 gap-3">
-                <input 
-                  type="text" 
-                  required
-                  aria-label="First Name"
-                  placeholder="First Name"
-                  value={firstNameInput}
-                  onChange={e => setFirstNameInput(e.target.value)}
-                  className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-                />
-                <input 
-                  type="text" 
-                  required
-                  aria-label="Surname"
-                  placeholder="Surname"
-                  value={surnameInput}
-                  onChange={e => setSurnameInput(e.target.value)}
-                  className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-                />
+                {/* First Name */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-skin-muted block">First Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. John"
+                    value={firstNameInput}
+                    onChange={e => { setFirstNameInput(e.target.value); setErrors({ ...errors, firstName: '' }); }}
+                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                      errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+                    }`}
+                  />
+                  {errors.firstName && <p className="text-[11px] text-red-500 font-medium">{errors.firstName}</p>}
+                </div>
+
+                {/* Surname */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-skin-muted block">Surname</label>
+                  <input 
+                    type="text" 
+                    value={surnameInput}
+                    onChange={e => { setSurnameInput(e.target.value); setErrors({ ...errors, surname: '' }); }}
+                    className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                      errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+                    }`}
+                  />
+                  {errors.surname && <p className="text-[11px] text-red-500 font-medium">{errors.surname}</p>}
+                </div>
               </div>
 
-              <input 
-                type="text" 
-                required
-                aria-label="Store Name"
-                placeholder="Please enter your store name"
-                value={storeNameInput}
-                onChange={e => setStoreNameInput(e.target.value)}
-                className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-              />
+              {/* Store Name */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-skin-muted block">Store Name</label>
+                <input 
+                  type="text" 
+                  value={storeNameInput}
+                  onChange={e => { setStoreNameInput(e.target.value); setErrors({ ...errors, storeName: '' }); }}
+                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                    errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+                  }`}
+                />
+                {errors.storeName && <p className="text-[11px] text-red-500 font-medium">{errors.storeName}</p>}
+              </div>
 
-              <input 
-                type="tel" 
-                required
-                aria-label="Phone Number"
-                placeholder="Phone Number (+234...)"
-                value={phoneInput}
-                onChange={e => setPhoneInput(e.target.value)}
-                className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-              />
+              {/* Phone Number */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-skin-muted block">Phone Number</label>
+                <input 
+                  type="tel" 
+                  value={phoneInput}
+                  onChange={e => { setPhoneInput(e.target.value); setErrors({ ...errors, phone: '' }); }}
+                  className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                    errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+                  }`}
+                />
+                {errors.phone && <p className="text-[11px] text-red-500 font-medium">{errors.phone}</p>}
+              </div>
             </>
           )}
 
-          <input 
-            type="email" 
-            required
-            aria-label="Store Email"
-            placeholder="Please enter your email"
-            value={emailInput}
-            onChange={e => setEmailInput(e.target.value)}
-            className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-          />
+          {/* Email Address */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-skin-muted block">Email Address</label>
+            <input 
+              type="email" 
+              value={emailInput}
+              onChange={e => { setEmailInput(e.target.value); setErrors({ ...errors, email: '' }); }}
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+              }`}
+            />
+            {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}
+          </div>
 
-          <input 
-            type="password" 
-            required
-            aria-label="Password"
-            placeholder="Password"
-            value={passwordInput}
-            onChange={e => setPasswordInput(e.target.value)}
-            className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
-          />
-
-          {isRegistering && (
+          {/* Password */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-skin-muted block">Password</label>
             <input 
               type="password" 
-              required
-              aria-label="Confirm Password"
-              placeholder="Please confirm your password"
-              value={confirmPasswordInput}
-              onChange={e => setConfirmPasswordInput(e.target.value)}
-              className="w-full bg-skin-base border border-skin-base px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm placeholder:text-skin-muted/70"
+              placeholder="••••••••"
+              value={passwordInput}
+              onChange={e => { setPasswordInput(e.target.value); setErrors({ ...errors, password: '' }); }}
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                errors.password ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+              }`}
             />
+            {errors.password && <p className="text-[11px] text-red-500 font-medium">{errors.password}</p>}
+          </div>
+
+          {/* Confirm Password */}
+          {isRegistering && (
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-skin-muted block">Confirm Password</label>
+              <input 
+                type="password" 
+                placeholder="••••••••"
+                value={confirmPasswordInput}
+                onChange={e => { setConfirmPasswordInput(e.target.value); setErrors({ ...errors, confirmPassword: '' }); }}
+                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base ${
+                  errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+                }`}
+              />
+              {errors.confirmPassword && <p className="text-[11px] text-red-500 font-medium">{errors.confirmPassword}</p>}
+            </div>
           )}
 
           <button 
             type="submit"
             className="w-full bg-brand-yellow text-black font-extrabold py-4 rounded-full hover:opacity-90 transition shadow-lg text-sm mt-2"
           >
-            {isRegistering ? 'Register Owner Account' : 'Unlock Admin Dashboard'}
+            {isRegistering ? 'Register Your Store' : 'Sign In'}
           </button>
         </form>
 
@@ -201,7 +234,7 @@ function OwnerPortalAuthContent() {
         {/* Google Auth Button */}
         <button 
           onClick={() => signIn('google')}
-          className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base px-4 py-3.5 rounded-xl text-sm font-semibold text-skin-base shadow-sm hover:opacity-95 transition-opacity"
+          className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base hover:opacity-95 transition-opacity"
         >
           <GoogleIcon className="w-5 h-5 shrink-0" />
           <span>Continue with Google</span>
