@@ -24,6 +24,8 @@ function OwnerPortalAuthContent() {
   const [surnameInput, setSurnameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
 
   // Recovery Modals State
   const [showTroubleModal, setShowTroubleModal] = useState(false);
