@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProvider, useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/AdminDashboard';
-import GoogleIcon from '@/components/icons/GoogleIcon';
+import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
