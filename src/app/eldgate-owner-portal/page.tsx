@@ -56,7 +56,7 @@ function OwnerPortalAuthContent() {
     }
   };
 
-  const handleAuthSubmit = async (e: React.FormEvent) => {
+    const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newErrors: Record<string, string> = {};
@@ -69,7 +69,12 @@ function OwnerPortalAuthContent() {
       if (!surnameInput.trim()) newErrors.surname = 'Please enter your surname.';
       if (!storeNameInput.trim()) newErrors.storeName = 'Please enter your store name.';
       if (!phoneInput.trim()) newErrors.phone = 'Please enter your phone number.';
-      if (passwordInput !== confirmPasswordInput) {
+
+      // Strong Password Validation Rules
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+      if (!passwordRegex.test(passwordInput)) {
+        newErrors.password = 'Password must be 8+ chars with uppercase, lowercase, number & special character.';
+      } else if (passwordInput !== confirmPasswordInput) {
         newErrors.confirmPassword = 'Passwords do not match.';
       }
     }
@@ -93,6 +98,7 @@ function OwnerPortalAuthContent() {
       }
     }
   };
+
   
   if (isLoading) {
   return <LoadingScreen message="Loading BIGVIEW Store..." />;
