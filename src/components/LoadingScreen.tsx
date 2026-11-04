@@ -1,7 +1,10 @@
-// File location: ./src/app/loading.tsx
 import Image from 'next/image';
 
-export default function GlobalLoading() {
+interface LoadingScreenProps {
+  message?: string;
+}
+
+export default function LoadingScreen({ message = "Secure Portal Loading..." }: LoadingScreenProps) {
   return (
     <div className="min-h-screen bg-skin-base flex flex-col items-center justify-center text-skin-base transition-opacity duration-300">
       <div className="text-center space-y-6 flex flex-col items-center animate-in fade-in zoom-in duration-300">
@@ -11,7 +14,7 @@ export default function GlobalLoading() {
           BIGVIEW
         </h1>
         
-        {/* Centered Logo Below Brand Name */}
+        {/* Centered Circular Logo Below Brand Name */}
         <div className="w-16 h-16 rounded-full overflow-hidden border border-[#D4AF37]/40 shadow-xl bg-skin-card flex items-center justify-center">
           <Image 
             src="/6592-removebg-preview.png" 
@@ -26,7 +29,7 @@ export default function GlobalLoading() {
         {/* Subtle sub-indicator */}
         <div className="flex items-center justify-center gap-2 pt-2">
           <div className="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping" />
-          <p className="text-xs text-skin-muted font-medium tracking-wide">Loading BIGVIEW Store...</p>
+          <p className="text-xs text-skin-muted font-medium tracking-wide">{message}</p>
         </div>
 
       </div>

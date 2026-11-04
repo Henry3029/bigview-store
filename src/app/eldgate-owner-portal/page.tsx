@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { StoreProvider, useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/AdminDashboard';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
+import LoadingScreen from '@/components/LoadingScreen';
 import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
@@ -27,11 +28,21 @@ function OwnerPortalAuthContent() {
 
   // Validation Errors State
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   // Recovery Modals State
   const [showTroubleModal, setShowTroubleModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetEmailInput, setResetEmailInput] = useState('');
+  
+  // Splash Screen Boot Timer Effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 800); // 800ms high-end branded flash
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Clear specific error field helper
   const handleInputChange = (field: string, value: string, setter: (val: string) => void) => {
@@ -82,6 +93,10 @@ function OwnerPortalAuthContent() {
       }
     }
   };
+  
+  if (isLoading) {
+  return <LoadingScreen message="Loading BIGVIEW Store..." />;
+}
 
   // If already logged in, render admin dashboard directly
   if (isOwner) {
@@ -90,16 +105,16 @@ function OwnerPortalAuthContent() {
 
   // Otherwise, render full-page immersive view
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-6 pb-12 bg-skin-base text-skin-base relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         
         {/* Top Branding (Text & Security Badge Only) */}
         <div className="space-y-1.5 flex flex-col items-center">
-          <h1 className="text-3xl sm:text-4xl font-black font-sans text-[#D4AF37] uppercase tracking-wider">
-            BIGVIEW
-          </h1>
+          <h2 className="text-2xl sm:text-4xl font-black font-sans text-[#D4AF37] tracking-normal">
+            Bigview store
+          </h2>
 
           <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
             <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -149,7 +164,7 @@ function OwnerPortalAuthContent() {
                 <label className="text-xs font-bold text-skin-muted block">Store Name</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. BIGVIEW Store"
+                  placeholder="e.g. eldgate"
                   value={storeNameInput}
                   onChange={e => handleInputChange('storeName', e.target.value, setStoreNameInput)}
                   className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
