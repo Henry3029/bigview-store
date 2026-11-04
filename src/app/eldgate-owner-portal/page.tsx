@@ -353,7 +353,6 @@ export default function SecretOwnerPortalPage() {
     profileUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
     ownerEmail: 'mom@eldgate.ng'
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPortalData() {
@@ -363,25 +362,10 @@ export default function SecretOwnerPortalPage() {
         if (storeData) setInitialStore(storeData);
       } catch (err) {
         console.error('Failed to load portal data:', err);
-      } finally {
-        setLoading(false);
       }
     }
     loadPortalData();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-skin-base flex items-center justify-center text-skin-base">
-        <div className="text-center space-y-3">
-          <div className="w-12 h-12 bg-brand-yellow text-black font-black rounded-xl animate-spin mx-auto flex items-center justify-center">
-            🔒
-          </div>
-          <p className="font-bold text-sm">Loading BIGVIEW Store Portal...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <StoreProvider initialItems={initialItems} initialStore={initialStore}>

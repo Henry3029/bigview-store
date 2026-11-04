@@ -5,7 +5,6 @@ import { StoreProvider } from '@/context/StoreContext';
 import Storefront from '@/components/Storefront';
 import AdminDashboard from '@/components/AdminDashboard';
 import Header from '@/components/Header';
-import PageSkeleton from '@/components/PageSkeleton';
 import Footer from '@/components/Footer';
 import { getItems, getStoreInfo } from '@/app/actions';
 
@@ -19,7 +18,6 @@ export default function Home() {
     profileUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
     ownerEmail: 'mom@eldgate.ng',
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -29,16 +27,10 @@ export default function Home() {
         if (storeData) setInitialStore(storeData);
       } catch (err) {
         console.error('Failed to load database data:', err);
-      } finally {
-        setLoading(false);
       }
     }
     loadData();
   }, []);
-
-  if (loading) {
-     return <PageSkeleton />;
-  }
 
   return (
     <StoreProvider initialItems={initialItems} initialStore={initialStore}>
