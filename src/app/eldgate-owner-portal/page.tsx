@@ -25,18 +25,30 @@ function OwnerPortalAuthContent() {
   const [phoneInput, setPhoneInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
 
-  // Validation Errors State (Defined only ONCE here)
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  // Validation Errors State
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Recovery Modals State
   const [showTroubleModal, setShowTroubleModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetEmailInput, setResetEmailInput] = useState('');
 
+  // Clear specific error field helper
+  const handleInputChange = (field: string, value: string, setter: (val: string) => void) => {
+    setter(value);
+    if (errors[field]) {
+      setErrors(currentErrors => {
+        const updated = { ...currentErrors };
+        delete updated[field];
+        return updated;
+      });
+    }
+  };
+
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: Record<string, string> = {};
 
     if (!emailInput.trim()) newErrors.email = 'Please enter your email address.';
     if (!passwordInput.trim()) newErrors.password = 'Please enter your password.';
@@ -78,15 +90,15 @@ function OwnerPortalAuthContent() {
 
   // Otherwise, render full-page immersive view
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-4 pb-12 bg-skin-base text-skin-base relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-6 pb-12 bg-skin-base text-skin-base relative">
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         
-        {/* Top Logo & Branding */}
+        {/* Top Branding (Text & Security Badge Only) */}
         <div className="space-y-1.5 flex flex-col items-center">
-          <h1 className="text-3xl sm:text-4xl font-black font-sans text-[#D4AF37]">
-            Bigview Store
+          <h1 className="text-3xl sm:text-4xl font-black font-sans text-[#D4AF37] uppercase tracking-wider">
+            BIGVIEW
           </h1>
 
           <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
@@ -108,7 +120,7 @@ function OwnerPortalAuthContent() {
                     type="text" 
                     placeholder="e.g. John"
                     value={firstNameInput}
-                    onChange={e => { setFirstNameInput(e.target.value); setErrors({ ...errors, firstName: '' }); }}
+                    onChange={e => handleInputChange('firstName', e.target.value, setFirstNameInput)}
                     className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                       errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                     }`}
@@ -123,7 +135,7 @@ function OwnerPortalAuthContent() {
                     type="text" 
                     placeholder="e.g. Doe"
                     value={surnameInput}
-                    onChange={e => { setSurnameInput(e.target.value); setErrors({ ...errors, surname: '' }); }}
+                    onChange={e => handleInputChange('surname', e.target.value, setSurnameInput)}
                     className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                       errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                     }`}
@@ -139,7 +151,7 @@ function OwnerPortalAuthContent() {
                   type="text" 
                   placeholder="e.g. BIGVIEW Store"
                   value={storeNameInput}
-                  onChange={e => { setStoreNameInput(e.target.value); setErrors({ ...errors, storeName: '' }); }}
+                  onChange={e => handleInputChange('storeName', e.target.value, setStoreNameInput)}
                   className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                     errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                   }`}
@@ -154,7 +166,7 @@ function OwnerPortalAuthContent() {
                   type="tel" 
                   placeholder="+234..."
                   value={phoneInput}
-                  onChange={e => { setPhoneInput(e.target.value); setErrors({ ...errors, phone: '' }); }}
+                  onChange={e => handleInputChange('phone', e.target.value, setPhoneInput)}
                   className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                     errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                   }`}
@@ -171,7 +183,7 @@ function OwnerPortalAuthContent() {
               type="email" 
               placeholder="you@example.com"
               value={emailInput}
-              onChange={e => { setEmailInput(e.target.value); setErrors({ ...errors, email: '' }); }}
+              onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
               }`}
@@ -186,7 +198,7 @@ function OwnerPortalAuthContent() {
               type="password" 
               placeholder="••••••••"
               value={passwordInput}
-              onChange={e => { setPasswordInput(e.target.value); setErrors({ ...errors, password: '' }); }}
+              onChange={e => handleInputChange('password', e.target.value, setPasswordInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.password ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
               }`}
@@ -202,7 +214,7 @@ function OwnerPortalAuthContent() {
                 type="password" 
                 placeholder="••••••••"
                 value={confirmPasswordInput}
-                onChange={e => { setConfirmPasswordInput(e.target.value); setErrors({ ...errors, confirmPassword: '' }); }}
+                onChange={e => handleInputChange('confirmPassword', e.target.value, setConfirmPasswordInput)}
                 className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
                 }`}
@@ -252,7 +264,15 @@ function OwnerPortalAuthContent() {
 
         {/* Demarcation */}
         <div className="w-full relative flex items-center justify-center py-1">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-skin-base/5" /></div>
+          <div 
+            className="absolute inset-0 flex items-center"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)'
+            }}
+          >
+            <div className="w-full border-t border-skin-base/30" />
+          </div>
           <span className="relative bg-skin-base px-4 text-xs text-skin-muted uppercase font-bold tracking-widest">OR</span>
         </div>
 
@@ -268,14 +288,14 @@ function OwnerPortalAuthContent() {
 
       {/* 1. TROUBLE SIGNING IN MODAL */}
       {showTroubleModal && (
-  <div 
-    onClick={() => setShowTroubleModal(false)}
-    className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity animate-in fade-in duration-200"
-  >
-    <div 
-      onClick={(e) => e.stopPropagation()}
-      className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-5 animate-in slide-in-from-bottom-full duration-300 ease-out text-left"
-    >
+        <div 
+          onClick={() => setShowTroubleModal(false)}
+          className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity animate-in fade-in duration-200"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-5 animate-in slide-in-from-bottom-full duration-300 ease-out text-left"
+          >
             <div className="flex justify-between items-center border-b border-skin-base pb-3">
               <h3 className="font-extrabold text-base">Trouble Signing In?</h3>
               <button onClick={() => setShowTroubleModal(false)} className="text-skin-muted hover:text-skin-base font-bold text-lg">✕</button>
