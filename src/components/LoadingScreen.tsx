@@ -6,31 +6,31 @@ interface LoadingScreenProps {
 
 export default function LoadingScreen({ message = "Secure Portal Loading..." }: LoadingScreenProps) {
   return (
-    <div className="min-h-screen ​bg-[#EAB308] flex flex-col items-center justify-center text-skin-base transition-opacity duration-300">
-      <div className="text-center space-y-2 flex flex-col items-center animate-in fade-in zoom-in duration-300">
+    <div className="fixed inset-0 z-50 !bg-[#EAB308] flex flex-col items-center justify-center transition-opacity duration-300">
+      {/* Tightened container with close items stack */}
+      <div className="text-center space-y-1.5 flex flex-col items-center animate-in fade-in zoom-in duration-300">
         
         {/* Brand Name */}
-        <h1 className="text-4xl font-black uppercase font-sans text-skin-base tracking-normal">
+        <h2 className="text-1xl font-bold uppercase font-sans text-black tracking-normal drop-shadow-sm">
           BIGVIEW
-        </h1>
+        </h2>
         
-        {/* Clean Logo Container (Transparent Background) */}
-{/* Clean Logo Container (Transparent Background & Larger Size) */}
-<div className="flex items-center justify-center">
-  <Image 
-    src="/6592-removebg-preview.png" 
-    alt="BIGVIEW Logo" 
-    width={192} 
-    height={192} 
-    className="object-contain w-48 h-48 drop-shadow-lg"
-    priority
-  />
-</div>
+        {/* Clean Logo Container (Close to text) */}
+        <div className="flex items-center justify-center my-1">
+          <Image 
+            src="/6592-removebg-preview.png" 
+            alt="BIGVIEW Logo" 
+            width={208} 
+            height={208} 
+            className="object-contain w-52 h-52 drop-shadow-md"
+            priority
+          />
+        </div>
 
         {/* Subtle sub-indicator */}
-        <div className="flex items-center justify-center gap-2 pt-2">
-          <div className="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping" />
-          <p className="text-xs text-skin-muted font-medium tracking-wide">{message}</p>
+        <div className="flex items-center justify-center gap-2 pt-1">
+          <div className="w-2 h-2 rounded-full bg-black animate-ping" />
+          <p className="text-xs text-black/80 font-semibold tracking-wide">{message}</p>
         </div>
 
       </div>
