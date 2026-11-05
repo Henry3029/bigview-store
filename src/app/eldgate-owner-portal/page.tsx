@@ -5,6 +5,7 @@ import { StoreProvider, useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/AdminDashboard';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import LoadingScreen from '@/components/LoadingScreen';
+import PasswordField from '@/components/PasswordField';
 import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
@@ -212,37 +213,25 @@ function OwnerPortalAuthContent() {
             {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}
           </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-skin-muted block">Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••"
-              value={passwordInput}
-              onChange={e => handleInputChange('password', e.target.value, setPasswordInput)}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                errors.password ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
-              }`}
-            />
-            {errors.password && <p className="text-[11px] text-red-500 font-medium">{errors.password}</p>}
-          </div>
+         {/* Password Field (with eye toggle & strength indicator) */}
+<PasswordField 
+  label="Password"
+  value={passwordInput}
+  onChange={(val) => handleInputChange('password', val, setPasswordInput)}
+  error={errors.password}
+  showIndicator={isRegistering} // Shows strength bar during registration
+/>
 
-          {/* Confirm Password */}
-          {isRegistering && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-skin-muted block">Confirm Password</label>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                value={confirmPasswordInput}
-                onChange={e => handleInputChange('confirmPassword', e.target.value, setConfirmPasswordInput)}
-                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                  errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
-                }`}
-              />
-              {errors.confirmPassword && <p className="text-[11px] text-red-500 font-medium">{errors.confirmPassword}</p>}
-            </div>
-          )}
+          {/* Confirm Password Field (with eye toggle only) */}
+{isRegistering && (
+  <PasswordField 
+    label="Confirm Password"
+    value={confirmPasswordInput}
+    onChange={(val) => handleInputChange('confirmPassword', val, setConfirmPasswordInput)}
+    error={errors.confirmPassword}
+    showIndicator={false} // Eye toggle enabled, strength bar hidden
+  />
+)}
 
           <button 
             type="submit"

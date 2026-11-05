@@ -38,6 +38,7 @@ export async function getItems() {
 
 export async function addItemAction(data: { name: string; price: number; category: string; imageUrl: string }) {
   await dbConnect();
+  // imageUrl will now contain either a base64 data string or an uploaded asset path
   await Item.create(data);
   revalidatePath('/');
 }
@@ -47,6 +48,7 @@ export async function updateItemAction(id: string, updates: { name: string; pric
   await Item.findByIdAndUpdate(id, updates);
   revalidatePath('/');
 }
+
 
 export async function deleteItemAction(id: string) {
   await dbConnect();
