@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Menu, User, ShoppingBag, X, Store, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Search, Menu, User, ShoppingBag, Store } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
+import CartDrawer from './CartDrawer'; // <--- 1. Import CartDrawer
 
 interface HeaderProps {
   onBack?: () => void;
@@ -16,14 +17,19 @@ export default function Header({
   searchQuery,
   setSearchQuery
 }: HeaderProps) {
-  const { cart, ownerAccount, isOwner, items } = useStore();
+  const { cart, ownerAccount, isOwner, items, placeOrder } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false); // <--- 2. Add local state for cart drawer
+
+  // Customer auth state for cart checkout flow inside Header's drawer
+  const [showCustomerAuthModal, setShowCustomerAuthModal] = useState(false);
+  const [currentCustomer, setCurrentCustomer] = useState<{ name: string; email: string; phone?: string } | null>(null);
   
   // Body scroll lock effect
   useEffect(() => {
-    if (mobileMenuOpen || isProfileModalOpen || isSearchOpen) {
+    if (mobileMenuOpen || isProfileModalOpen || isSearchOpen || isCartDrawerOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -31,10 +37,16 @@ export default function Header({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [mobileMenuOpen, isProfileModalOpen, isSearchOpen]);
+  }, [mobileMenuOpen, isProfileModalOpen, isSearchOpen, isCartDrawerOpen]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
+
+  const handleCheckout = async (phone: string) => {
+    if (!currentCustomer) return;
+    await placeOrder(currentCustomer.name, phone);
+    setIsCartDrawerOpen(false);
+  };
 
   return (
     <>
@@ -49,6 +61,7 @@ export default function Header({
                 setMobileMenuOpen(false);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
+                setIsCartDrawerOpen(false);
                 if (onBack) {
                   onBack();
                 } else if (window.history.length > 1) {
@@ -66,6 +79,7 @@ export default function Header({
                 setMobileMenuOpen(false);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
+                setIsCartDrawerOpen(false);
               }}
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] hover:bg-stone-500/20 drop-shadow-sm select-none hover:opacity-90 text-left"
             >
@@ -85,6 +99,7 @@ export default function Header({
                   setIsSearchOpen(true);
                   setIsProfileModalOpen(false);
                   setMobileMenuOpen(false);
+                  setIsCartDrawerOpen(false);
                 }}
                 placeholder="Search items..."
                 className="w-full bg-stone-500/20 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/30 cursor-pointer sm:cursor-text"
@@ -102,7 +117,7 @@ export default function Header({
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search EL.D.Gate items..."
+                    placeholder="Search items..."
                     className="w-full bg-skin-card border-2 border-[#48BB78] rounded-full pl-10 pr-4 py-2 text-sm text-skin-base focus:outline-none shadow-md"
                   />
                 </div>
@@ -129,6 +144,7 @@ export default function Header({
                 setMobileMenuOpen(!mobileMenuOpen);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
+                setIsCartDrawerOpen(false);
               }}
               className="md:hidden p-1.5 rounded-xl hover:bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Open Menu"
@@ -142,6 +158,7 @@ export default function Header({
                 setIsProfileModalOpen(true);
                 setMobileMenuOpen(false);
                 setIsSearchOpen(false);
+                setIsCartDrawerOpen(false);
               }}
               className="p-1 rounded-full hover:bg-stone-500/20 transition-transform active:scale-95"
               aria-label="Manage Account"
@@ -160,7 +177,7 @@ export default function Header({
             {/* Cart Icon */}
             <button
               onClick={() => {
-                setIsCartDrawerOpen(true);
+                setIsCartDrawerOpen(true); // <--- 3. This now successfully toggles the local state!
                 setMobileMenuOpen(false);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
@@ -230,6 +247,19 @@ export default function Header({
       <UserProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
+      />
+
+      {/* 4. Cart Drawer Component Integration */}
+      <CartDrawer 
+        isOpen={isCartDrawerOpen}
+        onClose={() => setIsCartDrawerOpen(false)}
+        cart={cart}
+        currentCustomer={currentCustomer}
+        onCheckout={handleCheckout}
+        onRequireAuth={() => {
+          setIsCartDrawerOpen(false);
+          setShowCustomerAuthModal(true);
+        }}
       />
     </>
   );
