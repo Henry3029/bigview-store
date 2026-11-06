@@ -7,8 +7,6 @@ import UserProfileModal from './UserProfileModal';
 
 interface HeaderProps {
   onBack?: () => void;
-  activeTab: 'store' | 'admin';
-  setActiveTab: (tab: 'store' | 'admin') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onOpenCart: () => void;
@@ -16,8 +14,6 @@ interface HeaderProps {
 
 export default function Header({
   onBack,
-  activeTab,
-  setActiveTab,
   searchQuery,
   setSearchQuery,
   onOpenCart,
@@ -27,18 +23,17 @@ export default function Header({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   
-// Inside your Header component:
-useEffect(() => {
-  if (mobileMenuOpen || isProfileModalOpen || isSearchOpen) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'unset';
-  }
-  return () => {
-    document.body.style.overflow = 'unset';
-  };
-}, [mobileMenuOpen, isProfileModalOpen, isSearchOpen]);
-
+  // Body scroll lock effect
+  useEffect(() => {
+    if (mobileMenuOpen || isProfileModalOpen || isSearchOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen, isProfileModalOpen, isSearchOpen]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
@@ -53,18 +48,16 @@ useEffect(() => {
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => {
-              	setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
-      setIsProfileModalOpen(false);
-      setIsSearchOpen(false);
+                setMobileMenuOpen(false);
+                setIsProfileModalOpen(false);
+                setIsSearchOpen(false);
                 if (onBack) {
                   onBack();
                 } else if (window.history.length > 1) {
                   window.history.back();
-                } else {
-                  setActiveTab('store'); 
                 }
               }}
-              className="p-1.5 rounded-full hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
+              className="p-1.5 rounded-full hover:bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Go Back"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -72,11 +65,10 @@ useEffect(() => {
 
             <button 
               onClick={() => { 
-              setActiveTab('store');
-              setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
-      setIsProfileModalOpen(false);
-      setIsSearchOpen(false);
-      }}
+                setMobileMenuOpen(false);
+                setIsProfileModalOpen(false);
+                setIsSearchOpen(false);
+              }}
               className="font-black text-base sm:text-lg tracking-wider text-[#D4AF37] hover:bg-stone-500/20 drop-shadow-sm select-none hover:opacity-90 text-left"
             >
               BIGVIEW
@@ -92,10 +84,10 @@ useEffect(() => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => {
-    setIsSearchOpen(true);
-    setIsProfileModalOpen(false); // Closes the user profile modal
-    setMobileMenuOpen(false);     // Closes mobile menu if open
-  }}
+                  setIsSearchOpen(true);
+                  setIsProfileModalOpen(false);
+                  setMobileMenuOpen(false);
+                }}
                 placeholder="Search items..."
                 className="w-full bg-stone-500/20 rounded-full pl-9 pr-3 py-1 text-xs sm:text-sm text-skin-base placeholder:text-skin-muted/70 focus:outline-none hover:bg-stone-500/30 cursor-pointer sm:cursor-text"
               />
@@ -136,11 +128,11 @@ useEffect(() => {
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               onClick={() => {
-      setMobileMenuOpen(!mobileMenuOpen);
-      setIsProfileModalOpen(false); // Close profile modal if open
-      setIsSearchOpen(false); // Close search if open
-    }}
-              className="md:hidden p-1.5 rounded-xl hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
+                setMobileMenuOpen(!mobileMenuOpen);
+                setIsProfileModalOpen(false);
+                setIsSearchOpen(false);
+              }}
+              className="md:hidden p-1.5 rounded-xl hover:bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Open Menu"
             >
               <Menu className="w-5 h-5" />
@@ -149,11 +141,11 @@ useEffect(() => {
             {/* User Icon Trigger */}
             <button
               onClick={() => {
-      setIsProfileModalOpen(true);
-      setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open profile view
-      setIsSearchOpen(false);
-    }}
-              className="p-1 rounded-full hover:​bg-stone-500/20 transition-transform active:scale-95"
+                setIsProfileModalOpen(true);
+                setMobileMenuOpen(false);
+                setIsSearchOpen(false);
+              }}
+              className="p-1 rounded-full hover:bg-stone-500/20 transition-transform active:scale-95"
               aria-label="Manage Account"
             >
               {userInitial ? (
@@ -170,12 +162,12 @@ useEffect(() => {
             {/* Cart Icon */}
             <button
               onClick={() => {
-      onOpenCart();
-      setMobileMenuOpen(false); // <--- Instantly closes mobile menu to open cart view
-      setIsProfileModalOpen(false);
-      setIsSearchOpen(false);
-    }}
-              className="relative p-1.5 rounded-xl hover:​bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
+                onOpenCart();
+                setMobileMenuOpen(false);
+                setIsProfileModalOpen(false);
+                setIsSearchOpen(false);
+              }}
+              className="relative p-1.5 rounded-xl hover:bg-stone-500/20 text-skin-muted hover:text-skin-base transition-colors"
               aria-label="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
@@ -190,24 +182,10 @@ useEffect(() => {
 
         {/* DESKTOP TOP NAVIGATION SUB-BAR */}
         <div className="hidden md:flex items-center justify-center gap-6 border-t border-skin-base/20 py-1.5 bg-skin-card/50 text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('store')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-colors ${
-              activeTab === 'store' ? 'bg-[#48BB78] text-white shadow-sm' : 'text-skin-muted hover:text-skin-base'
-            }`}
-          >
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#48BB78] text-white shadow-sm">
             <Store className="w-3.5 h-3.5" />
             Storefront
-          </button>
-          <button
-            onClick={() => setActiveTab('admin')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-colors ${
-              activeTab === 'admin' ? 'bg-[#48BB78] text-white shadow-sm' : 'text-skin-muted hover:text-skin-base'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Manage Your Store
-          </button>
+          </div>
         </div>
       </header>
 
@@ -254,7 +232,6 @@ useEffect(() => {
       <UserProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
-        onNavigate={(tab) => setActiveTab(tab)} 
       />
     </>
   );
