@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import { useStore } from '@/context/StoreContext';
 import { calculateDiscount } from '@/lib/pricing';
-import { ShoppingBag, Search, CheckCircle, ShieldCheck } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import CustomerAuthModal from '@/components/CustomerAuthScreen';
+import CartDrawer from '@/components/CartDrawer';
+import BottomAlert from '@/components/BottomAlert';
 
 interface StorefrontProps {
   searchQuery?: string;
@@ -15,9 +17,16 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showCustomerAuthModal, setShowCustomerAuthModal] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState<{ name: string; email: string; phone?: string } | null>(null);
-  const [customerPhone, setCustomerPhone] = useState('');
   const [lastOrderPin, setLastOrderPin] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'building-materials' | 'household-tools'>('building-materials');
+
+  // Modern Bottom Alert Sheet State
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'success' as 'success' | 'error' | 'info'
+  });
 
   // Filter items based on active tab category and search query
   const filteredItems = items.filter(item => {
@@ -32,36 +41,15 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
     return matchesTab && matchesSearch;
   });
 
-  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleCheckoutClick = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // MANDATORY AUTH CHECK AT CHECKOUT:
-    if (!currentCustomer) {
-      setIsCartOpen(false); // Close cart drawer to show modal clearly
-      setShowCustomerAuthModal(true);
-      return;
-    }
-
-    if (!customerPhone) {
-      alert('Please enter your phone number for pickup/delivery updates.');
-      return;
-    }
-
-    executeOrder(currentCustomer.name, customerPhone);
-  };
-
-  const executeOrder = async (name: string, phone: string) => {
-    const order = await placeOrder(name, phone);
+  const handleCheckout = async (phone: string) => {
+    const order = await placeOrder(currentCustomer!.name, phone);
     setLastOrderPin(order.verificationPin);
     setIsCartOpen(false);
-    setCustomerPhone('');
   };
 
   return (
     <div className="min-h-screen pb-20">
-      {/* Reduced Height Store Banner with Clean Profile & Store Name */}
+      {/* Store Banner */}
       <div className="relative h-36 sm:h-48 w-full bg-skin-card border-b border-skin-base overflow-hidden">
         <img 
           src={store.bannerUrl} 
@@ -84,9 +72,8 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         </div>
       </div>
       
-      {/* 1. FLEX CONTAINER FOR THE TWO LINKS */}
+      {/* Category Navigation Tabs */}
       <div className="flex items-center gap-6 border-b border-skin-base/20 px-4">
-        {/* Building Materials Link */}
         <button
           onClick={() => setActiveTab('building-materials')}
           className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
@@ -101,7 +88,6 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
           )}
         </button>
         
-        {/* Household Tools Link */}
         <button
           onClick={() => setActiveTab('household-tools')}
           className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
@@ -117,7 +103,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         </button>
       </div>
 
-      {/* 2. DYNAMIC CONTENT AREA */}
+      {/* Dynamic Content Description */}
       <div className="px-4 py-2">
         {activeTab === 'building-materials' ? (
           <div className="animate-in fade-in duration-200">
@@ -140,7 +126,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
           <div className="bg-green-500/10 border border-green-500 text-green-700 dark:text-green-300 p-6 rounded-2xl mb-8 text-center">
             <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
             <h3 className="text-lg font-bold">Order Placed Successfully!</h3>
-            <p className="text-sm mb-3">Your payment was processed through the app. Show this 6-digit Verification PIN to mom at EL.D.Gate to collect your items:</p>
+            <p className="text-sm mb-3">Your payment was processed through the app. Show this 6-digit Verification PIN to collect your items:</p>
             <div className="text-3xl font-mono font-black tracking-widest bg-skin-card py-3 px-6 rounded-xl inline-block border border-green-500/30">
               {lastOrderPin}
             </div>
@@ -203,89 +189,12 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         )}
       </div>
 
-      {/* Cart Drawer Modal */}
-      {isCartOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex justify-end backdrop-blur-sm">
-          <div className="w-full max-w-md bg-skin-card h-full p-6 flex flex-col shadow-2xl overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b border-skin-base pb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-brand-yellow" /> Your Cart ({cartItemCount})
-              </h2>
-              <button 
-                onClick={() => setIsCartOpen(false)}
-                className="text-skin-muted hover:text-skin-base text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            {cart.length === 0 ? (
-              <p className="text-skin-muted text-center py-12">Your cart is empty.</p>
-            ) : (
-              <>
-                <div className="space-y-4 flex-grow mb-6">
-                  {cart.map(item => {
-                    const pricing = calculateDiscount(item.price);
-                    return (
-                      <div key={item.id} className="flex items-center justify-between gap-3 border-b border-skin-base pb-3">
-                        <img src={item.imageUrl} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
-                        <div className="flex-grow">
-                          <h4 className="font-bold text-sm line-clamp-1">{item.name}</h4>
-                          <p className="text-xs text-skin-muted">Qty: {item.quantity}</p>
-                          <p className="text-sm font-bold text-brand-yellow">₦{(pricing.finalPrice * item.quantity).toLocaleString()}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <form onSubmit={handleCheckoutClick} className="border-t border-skin-base pt-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-sm">Checkout Details</h3>
-                    {currentCustomer && (
-                      <span className="text-[11px] text-green-600 font-bold bg-green-500/10 px-2 py-0.5 rounded-full">
-                        Signed in as {currentCustomer.name}
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-skin-muted block mb-1">Phone Number for Pickup</label>
-                    <input 
-                      type="tel" 
-                      required
-                      placeholder="e.g. 08012345678"
-                      value={customerPhone}
-                      onChange={e => setCustomerPhone(e.target.value)}
-                      className="w-full bg-skin-base border border-skin-base p-2.5 rounded-lg text-sm focus:outline-none focus:border-brand-yellow text-skin-base"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full bg-brand-yellow text-black font-extrabold py-3 rounded-xl hover:opacity-90 transition shadow-lg mt-2"
-                  >
-                    {currentCustomer ? 'Pay Online & Get App Discount' : 'Sign In / Register to Checkout'}
-                  </button>
-                  <p className="text-[11px] text-center text-skin-muted">Secured by BIGVIEW. Generates instant 6-digit PIN for store pickup.</p>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Customer Authentication Modal (Triggered Automatically at Checkout if not signed in) */}
-      <CustomerAuthModal 
-        isOpen={showCustomerAuthModal}
-        onClose={() => setShowCustomerAuthModal(false)}
-        onSuccess={(userData) => {
-          setCurrentCustomer(userData);
-          setShowCustomerAuthModal(false);
-          setIsCartOpen(true); // Re-open cart so they can finish checking out smoothly
-          alert(`Welcome, ${userData.name}! You are now signed in. You can complete your checkout.`);
-        }}
-      />
-    </div>
-  );
-}
+      {/* Cart Drawer Component */}
+      <CartDrawer 
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        currentCustomer={currentCustomer}
+        onCheckout={handleCheckout}
+        onRequireAuth={() => {
+          
