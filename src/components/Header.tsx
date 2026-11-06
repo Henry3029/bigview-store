@@ -9,14 +9,12 @@ interface HeaderProps {
   onBack?: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  onOpenCart: () => void;
 }
 
 export default function Header({
   onBack,
   searchQuery,
-  setSearchQuery,
-  onOpenCart,
+  setSearchQuery
 }: HeaderProps) {
   const { cart, ownerAccount, isOwner, items } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
