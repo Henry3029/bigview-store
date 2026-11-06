@@ -3,14 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProvider } from '@/context/StoreContext';
 import Storefront from '@/components/Storefront';
-import AdminDashboard from '@/components/AdminDashboard';
 import LoadingScreen from '@/components/LoadingScreen';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getItems, getStoreInfo } from '@/app/actions';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'store' | 'admin'>('store');
   const [searchQuery, setSearchQuery] = useState('');
   const [initialItems, setInitialItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +32,6 @@ export default function Home() {
       } catch (err) {
         console.error('Failed to load database data:', err);
       } finally {
-        // Ensure the high-end splash screen stays for at least 800ms for that smooth OPay/Temu feel
         if (isMounted) {
           setTimeout(() => {
             setIsLoading(false);
@@ -50,36 +47,26 @@ export default function Home() {
     };
   }, []);
   
-  // Inside your page component:
-if (isLoading) {
-  return <LoadingScreen message="Loading BIGVIEW Store..." />;
-}
+  if (isLoading) {
+    return <LoadingScreen message="Loading BIGVIEW Store..." />;
+  }
 
   return (
     <StoreProvider initialItems={initialItems} initialStore={initialStore}>
       <div className="min-h-screen bg-skin-base text-skin-base flex flex-col transition-colors">
         {/* Dedicated Modern Header */}
         <Header
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          onOpenCart={() => setActiveTab('store')}
         />
 
-        {/* Main View */}
+        {/* Main View: Strictly Storefront */}
         <main className="flex-grow">
-          {activeTab === 'store' ? (
-            <Storefront searchQuery={searchQuery} />
-          ) : (
-            <AdminDashboard />
-          )}
+          <Storefront searchQuery={searchQuery} />
         </main>
 
         {/* Dedicated Footer */}
         <Footer
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
           storeName={initialStore.name}
         />
       </div>

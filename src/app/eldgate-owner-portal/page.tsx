@@ -97,30 +97,42 @@ function OwnerPortalAuthContent() {
     setErrors({});
 
     if (isRegistering) {
-      const success = registerOwner(emailInput, passwordInput, storeNameInput);
-      if (success) {
-      	// Clear password inputs so the strength meter automatically vanishes
+      // Execute registration
+      registerOwner(emailInput, passwordInput, storeNameInput);
+      
+      // Clear password inputs so the strength meter automatically vanishes
       setPasswordInput('');
       setConfirmPasswordInput('');
-        setAlertConfig({
-        isOpen: true,
-        title: 'Welcome to BIGVIEW',
-        message: 'Store account registered successfully! Welcome to your owner portal.',
-        type: 'success'
-      });
-      setIsRegistering(false); // Switch back to sign-in mode or let them log in
-    }
-    } else {
-    const success = await loginOwner(emailInput, passwordInput);
-    if (!success) {
+      
       setAlertConfig({
         isOpen: true,
-        title: 'Access Denied',
-        message: 'Check your credentials or authorization.',
-        type: 'error'
+        title: 'Welcome to BIGVIEW',
+        message: 'Store account registered successfully! Please sign in with your new credentials.',
+        type: 'success'
       });
+      
+      setIsRegistering(false); // Force switch back to sign-in mode immediately
+    } else {
+      try {
+        const success = await loginOwner(emailInput, passwordInput);
+        // If loginOwner returns undefined or true on success, handle gracefully:
+        if (success === false) {
+          setAlertConfig({
+            isOpen: true,
+            title: 'Access Denied',
+            message: 'Check your credentials or authorization.',
+            type: 'error'
+          });
+        }
+      } catch (err) {
+        setAlertConfig({
+          isOpen: true,
+          title: 'Login Error',
+          message: 'An error occurred during sign-in. Please try again.',
+          type: 'error'
+        });
+      }
     }
-  }
 };
 
   
@@ -173,7 +185,7 @@ function OwnerPortalAuthContent() {
                   {errors.firstName && <p className="text-[11px] text-red-500 font-medium">{errors.firstName}</p>}
                 </div>
 
-                {/* Surname */}
+                {/* Last name */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-skin-muted block">Last Name</label>
                   <input 

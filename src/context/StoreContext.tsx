@@ -51,7 +51,6 @@ export const StoreProvider: React.FC<{
 
   const registerOwner = (email: string, pass: string, storeName: string): boolean => {
     setOwnerAccount({ email, passwordHash: pass, storeName });
-    setIsOwner(true);
     return true;
   };
 
