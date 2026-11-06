@@ -150,13 +150,14 @@ export default function AdminDashboard() {
       />
     </div>
 
+<label className="text-xs text-skin-muted block mb-1 font-bold">Store Profile Picture</label>
     {/* Store Profile Image (Using ImageCaptureField) */}
     <ImageCaptureField 
-      label="Store Profile Picture"
       value={profileUrl} 
       onChange={(val) => setProfileUrl(val)} 
     />
 
+<label className="text-xs text-skin-muted block mb-1 font-bold">Store Banner Picture</label>
     {/* Store Banner Image (Using ImageCaptureField) */}
     <ImageCaptureField 
       value={bannerUrl} 
