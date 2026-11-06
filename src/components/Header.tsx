@@ -160,7 +160,7 @@ export default function Header({
             {/* Cart Icon */}
             <button
               onClick={() => {
-                onOpenCart();
+                setIsCartDrawerOpen(true);
                 setMobileMenuOpen(false);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
