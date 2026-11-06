@@ -6,6 +6,7 @@ import AdminDashboard from '@/components/AdminDashboard';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import LoadingScreen from '@/components/LoadingScreen';
 import PasswordField from '@/components/PasswordField';
+import BottomAlert from '@/components/BottomAlert';
 import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
@@ -20,6 +21,14 @@ function OwnerPortalAuthContent() {
   const [passwordInput, setPasswordInput] = useState('');
   const [storeNameInput, setStoreNameInput] = useState('BIGVIEW Store');
   const [isRegistering, setIsRegistering] = useState(false);
+  
+  // alert input
+  const [alertConfig, setAlertConfig] = useState({
+  isOpen: false,
+  title: '',
+  message: '',
+  type: 'success' as 'success' | 'error' | 'info'
+});
 
   // Additional Registration Inputs
   const [firstNameInput, setFirstNameInput] = useState('');
@@ -90,15 +99,29 @@ function OwnerPortalAuthContent() {
     if (isRegistering) {
       const success = registerOwner(emailInput, passwordInput, storeNameInput);
       if (success) {
-        alert('Store account registered successfully! Welcome to BIGVIEW Store.');
-      }
-    } else {
-      const success = await loginOwner(emailInput, passwordInput);
-      if (!success) {
-        alert('Access denied. Check your credentials or authorization.');
-      }
+      	// Clear password inputs so the strength meter automatically vanishes
+      setPasswordInput('');
+      setConfirmPasswordInput('');
+        setAlertConfig({
+        isOpen: true,
+        title: 'Welcome to BIGVIEW',
+        message: 'Store account registered successfully! Welcome to your owner portal.',
+        type: 'success'
+      });
+      setIsRegistering(false); // Switch back to sign-in mode or let them log in
     }
-  };
+    } else {
+    const success = await loginOwner(emailInput, passwordInput);
+    if (!success) {
+      setAlertConfig({
+        isOpen: true,
+        title: 'Access Denied',
+        message: 'Check your credentials or authorization.',
+        type: 'error'
+      });
+    }
+  }
+};
 
   
   if (isLoading) {
@@ -370,6 +393,15 @@ function OwnerPortalAuthContent() {
           </div>
         </div>
       )}
+      
+      <BottomAlert 
+  isOpen={alertConfig.isOpen} 
+  onClose={() => setAlertConfig(p => ({ ...p, isOpen: false }))} 
+  title={alertConfig.title} 
+  message={alertConfig.message} 
+  type={alertConfig.type} 
+/>
+
     </div>
   );
 }
