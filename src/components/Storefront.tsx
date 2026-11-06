@@ -189,7 +189,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         )}
       </div>
 
-      {/* Cart Drawer Component */}
+            {/* Cart Drawer Component */}
       <CartDrawer 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -197,4 +197,38 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         currentCustomer={currentCustomer}
         onCheckout={handleCheckout}
         onRequireAuth={() => {
+          setIsCartOpen(false);
+          setShowCustomerAuthModal(true);
+        }}
+      />
+
+      {/* Customer Authentication Modal */}
+      <CustomerAuthModal 
+        isOpen={showCustomerAuthModal}
+        onClose={() => setShowCustomerAuthModal(false)}
+        onSuccess={(userData) => {
+          setCurrentCustomer(userData);
+          setShowCustomerAuthModal(false);
+          setIsCartOpen(true);
+          setAlertConfig({
+            isOpen: true,
+            title: 'Welcome Back!',
+            message: `Signed in as ${userData.name}. You can now complete your checkout.`,
+            type: 'success'
+          });
+        }}
+      />
+
+      {/* Native Bottom Alert Sheet */}
+      <BottomAlert 
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig(p => ({ ...p, isOpen: false }))}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+      />
+    </div>
+  );
+}
+
           
