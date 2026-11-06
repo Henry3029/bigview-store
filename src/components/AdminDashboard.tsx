@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const [storeName, setStoreName] = useState(store.name);
   const [bannerUrl, setBannerUrl] = useState(store.bannerUrl);
   const [profileUrl, setProfileUrl] = useState(store.profileUrl);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,7 +159,6 @@ export default function AdminDashboard() {
 
     {/* Store Banner Image (Using ImageCaptureField) */}
     <ImageCaptureField 
-      label="Store Banner Image"
       value={bannerUrl} 
       onChange={(val) => setBannerUrl(val)} 
     />

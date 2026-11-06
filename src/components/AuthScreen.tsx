@@ -79,8 +79,7 @@ export default function AuthScreen({
     setErrors({});
 
     if (isSignInMode) {
-      const success = onLogin(emailInput, passwordInput);
-      if (success) {
+        onLogin(emailInput, passwordInput);
         setPasswordInput('');
         setAlertConfig({
           isOpen: true,
@@ -88,14 +87,7 @@ export default function AuthScreen({
           message: 'Login Successful.',
           type: 'success'
         });
-      } else {
-        setAlertConfig({
-          isOpen: true,
-          title: 'Failed to Login',
-          message: 'Check your credentials and try again.',
-          type: 'error'
-        });
-      }
+        
     } else {
       // Registration Mode
       onRegister(emailInput, passwordInput, storeNameInput);
@@ -185,7 +177,7 @@ export default function AuthScreen({
               value={passwordInput}
               onChange={(val) => handleInputChange('password', val, setPasswordInput)}
               error={errors.password}
-              showIndicator={!isSignInMode} // Shows strength bar during registration
+              showIndicator={!isSignInMode} 
             />
 
             {/* SUBMIT BUTTON */}
