@@ -5,7 +5,6 @@ import { ArrowLeft, Search, Menu, User, ShoppingBag, Store } from 'lucide-react'
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
 import CartDrawer from './CartDrawer';
-import CustomerAuthModal from '@/components/CustomerAuthScreen';
 
 interface HeaderProps {
   onBack?: () => void;
@@ -265,17 +264,6 @@ export default function Header({
           setShowCustomerAuthModal(true);
         }}
       />
-
-      {/* Customer Auth Modal Integration */}
-      <CustomerAuthModal 
-        isOpen={showCustomerAuthModal}
-        onClose={() => setShowCustomerAuthModal(false)}
-        onSuccess={(userData) => {
-          setCurrentCustomer(userData);
-          setShowCustomerAuthModal(false);
-          setIsCartDrawerOpen(true);
-        }}
-      />
-    </>
+      </>
   );
 }

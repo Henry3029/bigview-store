@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useStore } from '@/context/StoreContext';
 import { calculateDiscount } from '@/lib/pricing';
 import { CheckCircle } from 'lucide-react';
-import CustomerAuthModal from '@/components/CustomerAuthScreen';
 import CartDrawer from '@/components/CartDrawer';
 import BottomAlert from '@/components/BottomAlert';
 
@@ -42,7 +41,8 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
   });
 
   const handleCheckout = async (phone: string) => {
-    const order = await placeOrder(currentCustomer!.name, phone);
+    if (!currentCustomer) return;
+    const order = await placeOrder(currentCustomer.name, phone);
     setLastOrderPin(order.verificationPin);
     setIsCartOpen(false);
   };
@@ -73,7 +73,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
       </div>
       
       {/* Category Navigation Tabs */}
-      <div className="flex items-center gap-6 border-b border-skin-base/20 px-4">
+      <div className="flex items-center gap-6 border-b border-skin-base/20 px-4 mt-4">
         <button
           onClick={() => setActiveTab('building-materials')}
           className={`pb-2.5 text-sm sm:text-base font-bold transition-all relative ${
@@ -107,19 +107,19 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
       <div className="px-4 py-2">
         {activeTab === 'building-materials' ? (
           <div className="animate-in fade-in duration-200">
-            <h3 className="font-bold text-lg text-skin-base mb-2">Building Materials Catalog</h3>
+            <h3 className="font-bold text-lg text-skin-base mb-1">Building Materials Catalog</h3>
             <p className="text-xs text-skin-muted">Explore cement, iron rods, roofing sheets, and heavy-duty construction supplies here.</p>
           </div>
         ) : (
           <div className="animate-in fade-in duration-200">
-            <h3 className="font-bold text-lg text-skin-base mb-2">Household Tools Catalog</h3>
+            <h3 className="font-bold text-lg text-skin-base mb-1">Household Tools Catalog</h3>
             <p className="text-xs text-skin-muted">Explore hammers, drills, screwdrivers, and everyday home maintenance tools here.</p>
           </div>
         )}
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-6xl mx-auto px-4 mt-6">
+      <div className="max-w-6xl mx-auto px-4 mt-4">
 
         {/* Success Modal for Last Order PIN */}
         {lastOrderPin && (
@@ -148,7 +148,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
             {filteredItems.map(item => {
               const pricing = calculateDiscount(item.price);
               return (
-                <div key={item.id} className="bg-skin-card border border-skin-base rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                <div key={item.id || (item as any)._id} className="bg-skin-card border border-skin-base rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
                   <div className="h-48 w-full bg-gray-100 overflow-hidden relative">
                     <img 
                       src={item.imageUrl} 
@@ -189,7 +189,7 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         )}
       </div>
 
-            {/* Cart Drawer Component */}
+      {/* Cart Drawer Component */}
       <CartDrawer 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -199,23 +199,6 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
         onRequireAuth={() => {
           setIsCartOpen(false);
           setShowCustomerAuthModal(true);
-        }}
-      />
-
-      {/* Customer Authentication Modal */}
-      <CustomerAuthModal 
-        isOpen={showCustomerAuthModal}
-        onClose={() => setShowCustomerAuthModal(false)}
-        onSuccess={(userData) => {
-          setCurrentCustomer(userData);
-          setShowCustomerAuthModal(false);
-          setIsCartOpen(true);
-          setAlertConfig({
-            isOpen: true,
-            title: 'Welcome Back!',
-            message: `Signed in as ${userData.name}. You can now complete your checkout.`,
-            type: 'success'
-          });
         }}
       />
 
@@ -230,5 +213,3 @@ export default function Storefront({ searchQuery = '' }: StorefrontProps) {
     </div>
   );
 }
-
-          

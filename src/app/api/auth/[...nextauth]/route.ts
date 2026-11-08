@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import dbConnect from "@/lib/mongodb";
 import Store from "@/models/Store";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 
 const handler = NextAuth({
   providers: [
@@ -23,42 +23,51 @@ const handler = NextAuth({
         const firstName = nameParts[0] || 'Google';
         const surname = nameParts.slice(1).join(' ') || 'User';
 
-        // OPTION 1: If this sign-in is for a Store Owner
-        // (You can check if they are registering or already own a store)
-        let existingStore = await Store.findOne({ ownerEmail: email });
+        // Check if they exist as a customer or store owner
+        const existingCustomer = await Customer.findOne({ email });
+        const existingStore = await Store.findOne({ ownerEmail: email });
 
-        if (!existingStore) {
-          // Automatically create their store on first Google login
-          await Store.create({
-            name: `${firstName}'s Store`,
+        // If they don't exist anywhere, default them safely as a customer 
+        // (or handle routing based on your app flow)
+        if (!existingCustomer && !existingStore) {
+          await Customer.create({
             firstName,
             surname,
-            ownerEmail: email,
-            passwordHash: 'GOOGLE_OAUTH_USER',
-            profileUrl: user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + ' ' + surname)}&background=48BB78&color=fff`,
-            bannerUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+            email,
+            passwordHash: 'GOOGLE_OAUTH_USER', // Safe for OAuth users
+            role: 'customer',
           });
         }
 
-        
-          // OPTION 2: If you want to handle Customers separately, keep it in its own block:
-          let existingCustomer = await User.findOne({ email });
-          if (!existingCustomer) {
-            await User.create({
-              firstName,
-              surname,
-              email,
-              passwordHash: 'GOOGLE_OAUTH_USER',
-              role: 'customer',
-            });
-          }
-       
-
-        return true; // Allow sign-in to proceed successfully
+        return true; 
       } catch (error) {
         console.error("Error saving Google user to MongoDB:", error);
         return false;
       }
+    },
+
+    // --- CRITICAL FOR PRODUCTION: Attach user details to the session ---
+    async jwt({ token, user }) {
+      if (user) {
+        await dbConnect();
+        const email = user.email?.toLowerCase();
+        
+        // Find out if they are an owner or customer to assign the correct role in token
+        const store = await Store.findOne({ ownerEmail: email });
+        const customer = await Customer.findOne({ email });
+
+        token.role = store ? 'owner' : (customer?.role || 'customer');
+        token.id = store?._id || customer?._id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+        (session.user as any).id = token.id;
+      }
+      return session;
     },
   },
 });
