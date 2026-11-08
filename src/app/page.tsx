@@ -48,7 +48,7 @@ export default function Home() {
   }, []);
   
   if (isLoading) {
-    return <LoadingScreen message="Loading BIGVIEW Store..." />;
+    return <LoadingScreen />;
   }
 
   return (

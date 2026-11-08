@@ -91,7 +91,14 @@ export const StoreProvider: React.FC<{
   const registerCustomer = async (email: string, pass: string, firstName: string, surname: string, phone: string): Promise<boolean> => {
     try {
       // Call your corresponding server action for customer registration
-      const result = await registerCustomerAction ? await registerCustomerAction({ email, password: pass, firstName, surname, phone }) : { success: true };
+const result = await registerCustomerAction(
+  email, 
+  pass, 
+  firstName, 
+  surname, 
+  phone
+);
+
       if (result.success) {
         setCustomerAccount({ email, passwordHash: pass, storeName: '' });
         return true;
