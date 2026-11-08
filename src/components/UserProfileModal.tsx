@@ -15,14 +15,15 @@ import {
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAuth?: () => void;
 }
 
-export default function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
+export default function UserProfileModal({ isOpen, onClose, onOpenAuth }: UserProfileModalProps) {
   if (!isOpen) return null;
 
   return (
     <>
-      {/* 1. Transparent Backdrop: Covers the entire screen to catch outside clicks */}
+      {/* Backdrop */}
       <div 
         onClick={onClose} 
         className="fixed inset-0 z-40 bg-transparent" 
@@ -36,16 +37,19 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           onClick={(e) => e.stopPropagation()} 
           className="relative w-full max-w-[310px] mr-1 pointer-events-auto shadow-2xl"
         >
-          {/* UPWARD ARROW / CARET POINTER */}
+          {/* Caret Pointer */}
           <div className="absolute -top-2 right-[30px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-skin-card z-10" />
 
           {/* MAIN MODAL BOX */}
-          <div className="bg-skin-card border border-skin-base shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
+          <div className="bg-skin-card border border-skin-base/40 shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
 
-            {/* 1. Yellow Sign In / Register Button */}
+            {/* Sign In / Register Button */}
             <button 
               onClick={() => {
                 onClose();
+                if (onOpenAuth) {
+                  onOpenAuth();
+                }
               }}
               className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2"
             >
@@ -53,9 +57,8 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               <ArrowRight className="w-4 h-4" />
             </button>
 
-            {/* 2. Side-by-Side Flex Box: Your Orders & Credit Balance */}
+            {/* Orders & Credit Balance */}
             <div className="grid grid-cols-2 gap-2">
-              {/* Orders Box */}
               <div 
                 onClick={onClose}
                 className="flex flex-col items-center text-center cursor-pointer group"
@@ -66,7 +69,6 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                 <span className="font-bold text-xs text-skin-base">Your Orders</span>
               </div>
 
-              {/* Credit Balance Box */}
               <div 
                 onClick={onClose}
                 className="flex flex-col items-center text-center cursor-pointer group"
@@ -78,7 +80,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               </div>
             </div>
 
-            {/* 3. Bottom Vertical List */}
+            {/* Bottom Vertical List */}
             <div className="flex flex-col gap-0.5 pt-1 border-t border-skin-base/30">
               <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left">
                 <Star className="w-3.5 h-3.5 text-brand-yellow shrink-0" />

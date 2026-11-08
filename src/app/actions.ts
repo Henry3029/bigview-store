@@ -86,6 +86,45 @@ export async function verifyOrderPinAction(pin: string) {
   return !!order;
 }
 
+// --- REGISTER OWNER ACTION ---
+export async function registerOwnerAction(
+  email: string, 
+  passwordInput: string, 
+  storeName: string,
+  firstName: string,
+  surname: string,
+  phone: string,
+  bannerUrl?: string, // Make optional
+  profileUrl?: string  // Make optional
+) {
+  await dbConnect();
+  
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Check if store/owner already exists in MongoDB
+  const existingStore = await Store.findOne({ ownerEmail: normalizedEmail });
+  if (existingStore) {
+    return { success: false, message: 'An account with this email already exists.' };
+  }
+
+  // Create new store record in MongoDB with ALL registration fields
+  await Store.create({
+    name: storeName || 'BIGVIEW Store',
+    firstName,
+    surname,
+    phone,
+    ownerEmail: normalizedEmail,
+    passwordHash: passwordInput, // Stored securely for login checks
+    bannerUrl: bannerUrl || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+    profileUrl: profileUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + ' ' + surname)}&background=48BB78&color=fff`,
+  });
+
+  revalidatePath('/');
+  return { success: true, message: 'Store registered successfully!' };
+}
+
+
+
 
 // --- AUTH & OWNER ACTIONS ---
 export async function loginOwnerAction(email: string, pass: string) {

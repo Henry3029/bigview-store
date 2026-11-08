@@ -1,10 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Item, StoreInfo, Order, CartItem, UserAccount } from '@/types';
 import { 
   getItems, addItemAction, updateItemAction, deleteItemAction, 
-  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction, loginOwnerAction,  resetPasswordAction
+  getStoreInfo, updateStoreBranding, placeOrderAction, verifyOrderPinAction, 
+  loginOwnerAction, resetPasswordAction, registerCustomerAction, loginCustomerAction 
 } from '@/app/actions';
 
 interface StoreContextType {
@@ -13,11 +14,20 @@ interface StoreContextType {
   cart: CartItem[];
   orders: Order[];
   isOwner: boolean;
+  isCustomer: boolean;
   ownerAccount: UserAccount | null;
+  customerAccount: UserAccount | null;
   setIsOwner: (val: boolean) => void;
-  registerOwner: (email: string, pass: string, storeName: string) => boolean;
+  setIsCustomer: (val: boolean) => void;
+  
+  // Owner Actions
+  registerOwner: (email: string, pass: string, storeName: string, firstName: string, surname: string, phone: string) => Promise<boolean>;
   loginOwner: (email: string, pass: string) => Promise<boolean>;
-  loginWithGoogle: () => void;
+  
+  // Customer Actions
+  registerCustomer: (email: string, pass: string, firstName: string, surname: string, phone: string) => Promise<boolean>;
+  loginCustomer: (email: string, pass: string) => Promise<boolean>;
+
   resetPassword: (email: string) => Promise<boolean>;
   updateStoreInfo: (info: Partial<StoreInfo>) => Promise<void>;
   addItem: (item: Omit<Item, 'id' | 'createdAt'>) => Promise<void>;
@@ -42,19 +52,27 @@ export const StoreProvider: React.FC<{
   const [items, setItems] = useState<Item[]>(initialItems);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  
+  // Session states
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isCustomer, setIsCustomer] = useState<boolean>(false);
+  
   const [ownerAccount, setOwnerAccount] = useState<UserAccount | null>({
     email: initialStore.ownerEmail || 'mom@eldgate.ng',
     passwordHash: 'eldgate2026',
     storeName: initialStore.name || 'EL.D.Gate',
   });
+  
+  const [customerAccount, setCustomerAccount] = useState<UserAccount | null>(null);
 
-  const registerOwner = (email: string, pass: string, storeName: string): boolean => {
+  // --- Store Owner Auth ---
+  const registerOwner = async (email: string, pass: string, storeName: string, firstName: string, surname: string, phone: string): Promise<boolean> => {
+    // You can link this to your server action for registration if ready
     setOwnerAccount({ email, passwordHash: pass, storeName });
     return true;
   };
 
-    const loginOwner = async (email: string, pass: string): Promise<boolean> => {
+  const loginOwner = async (email: string, pass: string): Promise<boolean> => {
     try {
       const result = await loginOwnerAction(email, pass);
       if (result.success) {
@@ -62,21 +80,42 @@ export const StoreProvider: React.FC<{
         setOwnerAccount({ email, passwordHash: pass, storeName: result.storeName || store.name });
         return true;
       }
-      alert(result.message);
       return false;
     } catch (err) {
       console.error(err);
-      alert('Login failed. Check your connection.');
       return false;
     }
   };
 
-  const loginWithGoogle = () => {
-    // For Google Auth in production, this can hook into NextAuth / Firebase. 
-    // For now, we authenticate the store owner session directly:
-    setOwnerAccount({ email: 'el.d.gate.store@gmail.com', passwordHash: 'GOOGLE_AUTH', storeName: store.name });
-    setIsOwner(true);
-    alert('Successfully authenticated with Google!');
+  // --- Customer Auth ---
+  const registerCustomer = async (email: string, pass: string, firstName: string, surname: string, phone: string): Promise<boolean> => {
+    try {
+      // Call your corresponding server action for customer registration
+      const result = await registerCustomerAction ? await registerCustomerAction({ email, password: pass, firstName, surname, phone }) : { success: true };
+      if (result.success) {
+        setCustomerAccount({ email, passwordHash: pass, storeName: '' });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const loginCustomer = async (email: string, pass: string): Promise<boolean> => {
+    try {
+      const result = await loginCustomerAction ? await loginCustomerAction(email, pass) : { success: true };
+      if (result.success) {
+        setIsCustomer(true);
+        setCustomerAccount({ email, passwordHash: pass, storeName: '' });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
@@ -86,11 +125,9 @@ export const StoreProvider: React.FC<{
         alert(`Password reset successful! Your temporary password is: ${result.tempPassword}`);
         return true;
       }
-      alert(result.message);
       return false;
     } catch (err) {
       console.error(err);
-      alert('Password reset failed.');
       return false;
     }
   };
@@ -161,15 +198,16 @@ export const StoreProvider: React.FC<{
     return await verifyOrderPinAction(pin);
   };
   
-    const handleUpdateStoreBranding = async (name: string, bannerUrl: string, profileUrl: string) => {
+  const handleUpdateStoreBranding = async (name: string, bannerUrl: string, profileUrl: string) => {
     await updateStoreBranding(name, bannerUrl, profileUrl);
     setStore(prev => ({ ...prev, name, bannerUrl, profileUrl }));
   };
 
   return (
     <StoreContext.Provider value={{
-      store, items, cart, orders, isOwner, ownerAccount, setIsOwner,
-      registerOwner, loginOwner, loginWithGoogle, resetPassword,
+      store, items, cart, orders, isOwner, isCustomer, ownerAccount, customerAccount, 
+      setIsOwner, setIsCustomer,
+      registerOwner, loginOwner, registerCustomer, loginCustomer, resetPassword,
       updateStoreInfo, addItem, updateItem, deleteItem,
       addToCart, removeFromCart, clearCart, placeOrder, verifyOrderPin, 
       updateStoreBranding: handleUpdateStoreBranding
@@ -177,7 +215,6 @@ export const StoreProvider: React.FC<{
       {children}
     </StoreContext.Provider>
   );
-
 };
 
 export const useStore = () => {

@@ -1,10 +1,6 @@
 import Image from 'next/image';
 
-interface LoadingScreenProps {
-  message?: string;
-}
-
-export default function LoadingScreen({ message = "Secure Portal Loading..." }: LoadingScreenProps) {
+export default function LoadingScreen() {
   return (
     <div className="fixed inset-0 z-50 !bg-[#D4AF37] flex flex-col items-center justify-center transition-opacity duration-300">
       {/* Tightened container with close items stack */}

@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Menu, User, ShoppingBag, Store } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
-import CartDrawer from './CartDrawer'; // <--- 1. Import CartDrawer
+import CartDrawer from './CartDrawer';
+import CustomerAuthModal from '@/components/CustomerAuthScreen';
 
 interface HeaderProps {
   onBack?: () => void;
@@ -15,21 +16,21 @@ interface HeaderProps {
 export default function Header({
   onBack,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
 }: HeaderProps) {
   const { cart, ownerAccount, isOwner, items, placeOrder } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false); // <--- 2. Add local state for cart drawer
-
-  // Customer auth state for cart checkout flow inside Header's drawer
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  
+  // Customer authentication modal state triggered from user profile dropdown
   const [showCustomerAuthModal, setShowCustomerAuthModal] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState<{ name: string; email: string; phone?: string } | null>(null);
-  
-  // Body scroll lock effect
+
+  // Body scroll lock effect across overlays
   useEffect(() => {
-    if (mobileMenuOpen || isProfileModalOpen || isSearchOpen || isCartDrawerOpen) {
+    if (mobileMenuOpen || isProfileModalOpen || isSearchOpen || isCartDrawerOpen || showCustomerAuthModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -37,7 +38,7 @@ export default function Header({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [mobileMenuOpen, isProfileModalOpen, isSearchOpen, isCartDrawerOpen]);
+  }, [mobileMenuOpen, isProfileModalOpen, isSearchOpen, isCartDrawerOpen, showCustomerAuthModal]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const userInitial = isOwner && ownerAccount?.email ? ownerAccount.email.charAt(0).toUpperCase() : null;
@@ -51,7 +52,6 @@ export default function Header({
   return (
     <>
       <header className="sticky top-0 z-50 bg-skin-card border-b border-skin-base/30 py-1 px-3">
-
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
           
           {/* LEFT: Back Icon + Clickable BIGVIEW Logo */}
@@ -174,10 +174,10 @@ export default function Header({
               )}
             </button>
 
-            {/* Cart Icon */}
+            {/* Cart Icon Trigger */}
             <button
               onClick={() => {
-                setIsCartDrawerOpen(true); // <--- 3. This now successfully toggles the local state!
+                setIsCartDrawerOpen(true);
                 setMobileMenuOpen(false);
                 setIsProfileModalOpen(false);
                 setIsSearchOpen(false);
@@ -243,13 +243,17 @@ export default function Header({
         </div>
       )}
 
-      {/* Profile Modal Integration */}
+      {/* User Profile Modal Integration with onOpenAuth */}
       <UserProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
+        onOpenAuth={() => {
+          setIsProfileModalOpen(false);
+          setShowCustomerAuthModal(true);
+        }}
       />
 
-      {/* 4. Cart Drawer Component Integration */}
+      {/* Cart Drawer Integration */}
       <CartDrawer 
         isOpen={isCartDrawerOpen}
         onClose={() => setIsCartDrawerOpen(false)}
@@ -259,6 +263,17 @@ export default function Header({
         onRequireAuth={() => {
           setIsCartDrawerOpen(false);
           setShowCustomerAuthModal(true);
+        }}
+      />
+
+      {/* Customer Auth Modal Integration */}
+      <CustomerAuthModal 
+        isOpen={showCustomerAuthModal}
+        onClose={() => setShowCustomerAuthModal(false)}
+        onSuccess={(userData) => {
+          setCurrentCustomer(userData);
+          setShowCustomerAuthModal(false);
+          setIsCartDrawerOpen(true);
         }}
       />
     </>
