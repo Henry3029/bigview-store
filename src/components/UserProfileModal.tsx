@@ -11,6 +11,8 @@ import {
   Settings, 
   ArrowRight
 } from 'lucide-react';
+import Link from 'next/link'; // Make sure to import Link if you use it, or use a styled <a> tag
+
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -44,18 +46,14 @@ export default function UserProfileModal({ isOpen, onClose, onOpenAuth }: UserPr
           <div className="bg-skin-card border border-skin-base/40 shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
 
             {/* Sign In / Register Button */}
-            <button 
-              onClick={() => {
-                onClose();
-                if (onOpenAuth) {
-                  onOpenAuth();
-                }
-              }}
-              className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2"
-            >
-              <span>SIGN IN / REGISTER</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+<Link 
+  href="/login/customer"
+  onClick={onClose}
+  className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2 text-center"
+>
+  <span>SIGN IN / REGISTER</span>
+  <ArrowRight className="w-4 h-4" />
+</Link>
 
             {/* Orders & Credit Balance */}
             <div className="grid grid-cols-2 gap-2">

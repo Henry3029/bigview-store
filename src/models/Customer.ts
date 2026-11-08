@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IUser extends Document {
+export interface ICustomer extends Document {
   firstName: string;
   surname: string;
   email: string;
@@ -10,7 +10,7 @@ export interface IUser extends Document {
   createdAt: Date;
 }
 
-const UserSchema = new Schema<IUser>(
+const CustomerSchema = new Schema<ICustomer>(
   {
     firstName: { type: String, required: true, trim: true },
     surname: { type: String, required: true, trim: true },
@@ -25,6 +25,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Prevent re-compilation errors in Next.js hot-reloading environment
-const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', CustomerSchema);
 
-export default User;
+export default Customer;
