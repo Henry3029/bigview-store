@@ -3,7 +3,7 @@
 import dbConnect from '@/lib/mongodb';
 import Item from '@/models/Item';
 import Store from '@/models/Store';
-import Order from '@/models/Order';
+import Order from '@/models/Orders';
 import Customer from '@/models/Customer'; // Add this import at the top
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
