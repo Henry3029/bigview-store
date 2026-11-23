@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { CartItem } from '@/types';
-import { calculateDiscount } from '@/lib/pricing';
 import BottomAlert from '@/components/BottomAlert';
 
 interface CartDrawerProps {
