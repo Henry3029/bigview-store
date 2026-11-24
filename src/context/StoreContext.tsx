@@ -106,7 +106,6 @@ export const StoreProvider: React.FC<{
       const normalizedEmail = email.trim().toLowerCase();
       const resolvedStoreName = storeName.trim() || store.name || 'EL.D.Gate';
 
-      // Call registerOwnerAction if exported in @/app/actions
       const actionsModule = await import('@/app/actions');
       if (typeof (actionsModule as Record<string, unknown>).registerOwnerAction === 'function') {
         const registerFn = (actionsModule as unknown as {
@@ -249,5 +248,117 @@ export const StoreProvider: React.FC<{
     await addItemAction({
       name: newItemData.name,
       price: newItemData.price,
-});
-}
+      category: newItemData.category,
+      imageUrl: newItemData.imageUrl,
+    });
+    const updatedItems: Item[] = await getItems();
+    setItems(updatedItems);
+  };
+
+  const updateItem = async (id: string, updates: Partial<Item>) => {
+    const target = items.find((i: Item) => i.id === id);
+    if (!target) return;
+
+    const merged = {
+      name: updates.name ?? target.name,
+      price: updates.price ?? target.price,
+      category: updates.category ?? target.category,
+      imageUrl: updates.imageUrl ?? target.imageUrl,
+    };
+
+    await updateItemAction(id, merged);
+    const updatedItems: Item[] = await getItems();
+    setItems(updatedItems);
+  };
+
+  const deleteItem = async (id: string) => {
+    await deleteItemAction(id);
+    setItems((prev: Item[]) => prev.filter((item: Item) => item.id !== id));
+  };
+
+  // --- Cart ---
+  const addToCart = (item: Item) => {
+    setCart((prev: CartItem[]) => {
+      const existing = prev.find((i: CartItem) => i.id === item.id);
+      if (existing) {
+        return prev.map((i: CartItem) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (id: string) => {
+    setCart((prev: CartItem[]) => prev.filter((i: CartItem) => i.id !== id));
+  };
+
+  const clearCart = () => setCart([]);
+
+  // --- Orders ---
+  const placeOrder = async (
+    customerName: string,
+    customerPhone: string
+  ): Promise<Order> => {
+    const totalAmount = cart.reduce((sum: number, item: CartItem) => {
+      const { finalPrice } = calculateDiscount(item.price);
+      return sum + finalPrice * item.quantity;
+    }, 0);
+
+    const newOrder: Order = await placeOrderAction(
+      customerName,
+      customerPhone,
+      cart,
+      totalAmount
+    );
+    setOrders((prev: Order[]) => [newOrder, ...prev]);
+    clearCart();
+    return newOrder;
+  };
+
+  const verifyOrderPin = async (pin: string): Promise<boolean> => {
+    return await verifyOrderPinAction(pin);
+  };
+
+  return (
+    <StoreContext.Provider
+      value={{
+        store,
+        items,
+        cart,
+        orders,
+        isOwner,
+        isCustomer,
+        ownerAccount,
+        customerAccount,
+        setIsOwner,
+        setIsCustomer,
+        registerOwner,
+        loginOwner,
+        registerCustomer,
+        loginCustomer,
+        resetPassword,
+        updateStoreInfo,
+        updateStoreBranding: handleUpdateStoreBranding,
+        addItem,
+        updateItem,
+        deleteItem,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        placeOrder,
+        verifyOrderPin,
+      }}
+    >
+      {children}
+    </StoreContext.Provider>
+  );
+};
+
+export const useStore = () => {
+  const context = useContext(StoreContext);
+  if (!context) {
+    throw new Error('useStore must be used within StoreProvider');
+  }
+  return context;
+};
