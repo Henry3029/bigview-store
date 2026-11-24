@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { CartItem } from '@/types';
 import BottomAlert from '@/components/BottomAlert';
+import { calculateDiscount } from '@/lib/pricing';
+
 
 interface CartDrawerProps {
   isOpen: boolean;

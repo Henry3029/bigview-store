@@ -18,7 +18,7 @@ export interface IOrder extends Document {
   items: IOrderItem[];
   totalAmount: number;
   verificationPin: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'PENDING_CONFIRMATION' | 'PAID_VERIFIED' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,7 +46,7 @@ const OrderSchema = new Schema<IOrder>(
     verificationPin: { type: String, required: true },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+      enum: ['PENDING_CONFIRMATION', 'PAID_VERIFIED', 'pending', 'confirmed', 'completed', 'cancelled'],
       default: 'pending',
     },
   },
