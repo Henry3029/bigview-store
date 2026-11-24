@@ -10,13 +10,13 @@ import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
 import { Item, StoreInfo } from '@/types';
-import { useRouter } from 'next/navigation'; // Added for routing
+import { useRouter } from 'next/navigation';
 
 // 1. Full-Page Immersive Authentication Component
 function OwnerPortalAuthContent() {
   const { isOwner, registerOwner } = useStore();
-  const router = useRouter(); // Initialize router for redirection
-  
+  const router = useRouter();
+
   // Basic Auth Inputs
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
@@ -32,7 +32,7 @@ function OwnerPortalAuthContent() {
   // Validation Errors State
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Splash Screen Boot Timer Effect
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,14 +41,14 @@ function OwnerPortalAuthContent() {
 
     return () => clearTimeout(timer);
   }, []);
-  
+
   // Auto-dismiss success message and redirect after successful registration
   useEffect(() => {
     if (registrationSuccessMessage) {
       const timer = setTimeout(() => {
         setRegistrationSuccessMessage(null);
-        router.push('/login/owner'); // Redirect to login page after success banner
-      }, 2000); // 2 seconds delay so they see the success message
+        router.push('/login/owner');
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [registrationSuccessMessage, router]);
@@ -67,7 +67,7 @@ function OwnerPortalAuthContent() {
 
   const handleRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors: Record<string, string> = {};
 
     if (!emailInput.trim()) newErrors.email = 'Please enter your email address.';
@@ -92,45 +92,56 @@ function OwnerPortalAuthContent() {
 
     setErrors({});
 
-    // Execute registration with complete arguments
-    await registerOwner(
-      emailInput, 
-      passwordInput, 
-      storeNameInput, 
-      firstNameInput, 
-      surnameInput, 
-      phoneInput
-    );
-      
-    // Clear password inputs
-    setPasswordInput('');
-    setConfirmPasswordInput('');
-    
-    setRegistrationSuccessMessage('Account registered successfully!');
+    try {
+      const registered = await registerOwner(
+        emailInput,
+        passwordInput,
+        storeNameInput,
+        firstNameInput,
+        surnameInput,
+        phoneInput
+      );
+
+      if (!registered) {
+        setErrors({
+          email: 'Could not register account. This email may already be in use.',
+        });
+        return;
+      }
+
+      setPasswordInput('');
+      setConfirmPasswordInput('');
+      setRegistrationSuccessMessage('Account registered successfully!');
+    } catch (err) {
+      console.error('Owner registration error:', err);
+      setErrors({
+        email: 'An unexpected error occurred while registering. Please try again.',
+      });
+    }
   };
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  // If already logged in, render admin dashboard directly
-  if (isOwner) {
+  // If already logged in and not showing the post-registration success banner, render admin dashboard directly
+  if (isOwner && !registrationSuccessMessage) {
     return <AdminDashboard />;
   }
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
-      
+
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
-      
+
         {/* Registration Success Auto-Fading Top Banner */}
         {registrationSuccessMessage && (
           <div className="w-full bg-emerald-600 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md text-center animate-in fade-in duration-300">
             {registrationSuccessMessage}
           </div>
         )}
-        
+
         {/* Top Branding */}
         <div className="space-y-1.5 flex flex-col items-center">
           <h2 className="text-2xl sm:text-4xl font-black font-sans text-[#D4AF37] tracking-normal">
@@ -145,13 +156,13 @@ function OwnerPortalAuthContent() {
 
         {/* Full-Width Form Flow with Custom Validation & noValidate */}
         <form onSubmit={handleRegistration} noValidate className="w-full space-y-4 text-left pt-2">
-          
+
           <div className="grid grid-cols-2 gap-3">
             {/* First Name */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-skin-muted block">First Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="e.g. John"
                 value={firstNameInput}
                 onChange={e => handleInputChange('firstName', e.target.value, setFirstNameInput)}
@@ -165,8 +176,8 @@ function OwnerPortalAuthContent() {
             {/* Last name */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-skin-muted block">Last Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="e.g. Doe"
                 value={surnameInput}
                 onChange={e => handleInputChange('surname', e.target.value, setSurnameInput)}
@@ -181,8 +192,8 @@ function OwnerPortalAuthContent() {
           {/* Store Name */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-skin-muted block">Store Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="e.g. eldgate"
               value={storeNameInput}
               onChange={e => handleInputChange('storeName', e.target.value, setStoreNameInput)}
@@ -196,8 +207,8 @@ function OwnerPortalAuthContent() {
           {/* Phone Number */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-skin-muted block">Phone Number</label>
-            <input 
-              type="tel" 
+            <input
+              type="tel"
               placeholder="+234..."
               value={phoneInput}
               onChange={e => handleInputChange('phone', e.target.value, setPhoneInput)}
@@ -211,8 +222,8 @@ function OwnerPortalAuthContent() {
           {/* Email Address */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-skin-muted block">Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               placeholder="you@example.com"
               value={emailInput}
               onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
@@ -224,7 +235,7 @@ function OwnerPortalAuthContent() {
           </div>
 
           {/* Password Field */}
-          <PasswordField 
+          <PasswordField
             label="Password"
             value={passwordInput}
             onChange={(val) => handleInputChange('password', val, setPasswordInput)}
@@ -233,7 +244,7 @@ function OwnerPortalAuthContent() {
           />
 
           {/* Confirm Password Field */}
-          <PasswordField 
+          <PasswordField
             label="Confirm Password"
             value={confirmPasswordInput}
             onChange={(val) => handleInputChange('confirmPassword', val, setConfirmPasswordInput)}
@@ -241,7 +252,7 @@ function OwnerPortalAuthContent() {
             showIndicator={false}
           />
 
-          <button 
+          <button
             type="submit"
             className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-lg text-sm mt-3"
           >
@@ -261,7 +272,7 @@ function OwnerPortalAuthContent() {
 
         {/* Demarcation */}
         <div className="w-full relative flex items-center justify-center py-1">
-          <div 
+          <div
             className="absolute inset-0 flex items-center"
             style={{
               maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
@@ -274,7 +285,8 @@ function OwnerPortalAuthContent() {
         </div>
 
         {/* Google Auth Button */}
-        <button 
+        <button
+          type="button"
           onClick={() => signIn('google')}
           className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base/40 px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base shadow-sm hover:opacity-95 transition-opacity"
         >
@@ -297,16 +309,23 @@ export default function SecretOwnerPortalPage() {
   });
 
   useEffect(() => {
+    let active = true;
+
     async function loadPortalData() {
       try {
         const [itemsData, storeData] = await Promise.all([getItems(), getStoreInfo()]);
-        if (itemsData) setInitialItems(itemsData);
+        if (!active) return;
+        if (Array.isArray(itemsData)) setInitialItems(itemsData);
         if (storeData) setInitialStore(storeData);
       } catch (err) {
         console.error('Failed to load portal data:', err);
       }
     }
+
     loadPortalData();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (

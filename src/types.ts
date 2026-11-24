@@ -47,4 +47,7 @@ export interface UserAccount {
   name?: string;
   role?: 'owner' | 'customer';
   phone?: string;
+  passwordHash?: string;
+  storeName?: string;
 }
+

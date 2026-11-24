@@ -264,6 +264,15 @@ function OwnerLoginContent() {
 
             <button 
               onClick={async () => {
+                if (!resetEmailInput.trim()) {
+                  setAlertConfig({
+                    isOpen: true,
+                    title: 'Email Required',
+                    message: 'Please enter your registered store email address.',
+                    type: 'error'
+                  });
+                  return;
+                }
                 await resetPassword(resetEmailInput);
                 setShowResetModal(false);
               }}
@@ -298,16 +307,23 @@ export default function OwnerLoginPage() {
   });
 
   useEffect(() => {
+    let active = true;
+
     async function loadPortalData() {
       try {
         const [itemsData, storeData] = await Promise.all([getItems(), getStoreInfo()]);
-        if (itemsData) setInitialItems(itemsData);
+        if (!active) return;
+        if (Array.isArray(itemsData)) setInitialItems(itemsData);
         if (storeData) setInitialStore(storeData);
       } catch (err) {
         console.error('Failed to load portal data:', err);
       }
     }
+
     loadPortalData();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (

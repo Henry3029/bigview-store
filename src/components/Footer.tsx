@@ -2,16 +2,19 @@
 
 import React from 'react';
 import { Store } from 'lucide-react';
+import { useStore } from '@/context/StoreContext';
 
 interface FooterProps {
-  storeName: string;
+  storeName?: string;
 }
 
 export default function Footer({ storeName }: FooterProps) {
+  const { store } = useStore();
+  const resolvedStoreName = storeName || store?.name || 'BIGVIEW Store';
+
   return (
     <footer className="bg-skin-card border-t border-skin-base/30 py-4 px-4 mt-auto">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-skin-muted">
-        
         {/* Storefront Indicator */}
         <div className="flex items-center gap-1.5 text-emerald-500 font-medium">
           <Store className="w-3.5 h-3.5" />
@@ -22,7 +25,7 @@ export default function Footer({ storeName }: FooterProps) {
         <p className="text-center sm:text-right">
           <span className="text-emerald-500">© 2026 </span>
           <strong className="text-[#D4AF37]">BIGVIEW</strong> E-Commerce. Built for{' '}
-          <strong className="text-skin-base">{storeName}</strong>.
+          <strong className="text-skin-base">{resolvedStoreName}</strong>.
         </p>
       </div>
     </footer>

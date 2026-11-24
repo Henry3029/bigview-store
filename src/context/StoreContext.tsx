@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Item, StoreInfo, Order, CartItem, UserAccount } from '@/types';
 import { calculateDiscount } from '@/lib/pricing';
 import {
@@ -92,6 +92,19 @@ export const StoreProvider: React.FC<{
   });
 
   const [customerAccount, setCustomerAccount] = useState<UserAccount | null>(null);
+
+  // Sync state when initialStore or initialItems load asynchronously
+  useEffect(() => {
+    if (initialStore) {
+      setStore(initialStore);
+    }
+  }, [initialStore]);
+
+  useEffect(() => {
+    if (initialItems) {
+      setItems(initialItems);
+    }
+  }, [initialItems]);
 
   // --- Store Owner Auth ---
   const registerOwner = async (

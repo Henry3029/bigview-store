@@ -9,7 +9,7 @@ import { signIn } from 'next-auth/react';
 
 interface CustomerLoginProps {
   onClose?: () => void;
-  onLogin: (email: string, pass: string) => void;
+  onLogin: (email: string, pass: string) => Promise<boolean> | boolean;
   setShowTroubleModal: (val: boolean) => void;
 }
 
@@ -21,23 +21,27 @@ export default function CustomerLogin({
   // Form states
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  
+
   // Validation Errors State
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Alert Config State
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
     title: '',
     message: '',
-    type: 'success' as 'success' | 'error' | 'info'
+    type: 'success' as 'success' | 'error' | 'info',
   });
 
   // Clear specific error field helper
-  const handleInputChange = (field: string, value: string, setter: (val: string) => void) => {
+  const handleInputChange = (
+    field: string,
+    value: string,
+    setter: (val: string) => void
+  ) => {
     setter(value);
     if (errors[field]) {
-      setErrors(currentErrors => {
+      setErrors((currentErrors) => {
         const updated = { ...currentErrors };
         delete updated[field];
         return updated;
@@ -45,7 +49,7 @@ export default function CustomerLogin({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -59,23 +63,42 @@ export default function CustomerLogin({
 
     setErrors({});
 
-    onLogin(emailInput, passwordInput);
-    setPasswordInput('');
-    setAlertConfig({
-      isOpen: true,
-      title: 'Welcome Back',
-      message: 'Login Successful.',
-      type: 'success'
-    });
+    try {
+      const success = await onLogin(emailInput, passwordInput);
+      if (success === false) {
+        setAlertConfig({
+          isOpen: true,
+          title: 'Access Denied',
+          message: 'Invalid email or password. Please try again.',
+          type: 'error',
+        });
+        return;
+      }
+
+      setPasswordInput('');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Welcome Back',
+        message: 'Login Successful.',
+        type: 'success',
+      });
+    } catch {
+      setAlertConfig({
+        isOpen: true,
+        title: 'Login Error',
+        message: 'An error occurred during sign-in. Please try again.',
+        type: 'error',
+      });
+    }
   };
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-skin-base relative px-3 py-3">
-      
       {/* HEADER BAR */}
       <div className="w-full flex items-center justify-between px-4 py-4 sm:px-8 border-b border-skin-base/25">
         {onClose && (
-          <button 
+          <button
+            type="button"
             onClick={onClose}
             className="p-2 text-skin-muted hover:text-skin-base transition rounded-full hover:bg-skin-card"
             aria-label="Close"
@@ -94,7 +117,6 @@ export default function CustomerLogin({
       {/* CONTENT STACK (No Container Card) */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
-          
           <div className="space-y-1">
             <h2 className="text-2xl sm:text-4xl font-black text-[#D4AF37] mb-1">
               Bigview Store
@@ -110,31 +132,44 @@ export default function CustomerLogin({
           </div>
 
           {/* Auth form */}
-          <form onSubmit={handleSubmit} className="w-full space-y-4 text-left pt-2">
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            className="w-full space-y-4 text-left pt-2"
+          >
             <div>
-              <label className="text-xs text-skin-muted block mb-1 font-bold">Email Address</label>
-              <input 
-                type="email" 
-                required
+              <label className="text-xs text-skin-muted block mb-1 font-bold">
+                Email Address
+              </label>
+              <input
+                type="email"
                 placeholder="Enter your email"
                 value={emailInput}
-                onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
+                onChange={(e) =>
+                  handleInputChange('email', e.target.value, setEmailInput)
+                }
                 className="w-full bg-skin-base border border-skin-base/40 px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
               />
-              {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-[11px] text-red-500 font-medium">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Field */}
-            <PasswordField 
+            <PasswordField
               label="Password"
               value={passwordInput}
-              onChange={(val) => handleInputChange('password', val, setPasswordInput)}
+              onChange={(val) =>
+                handleInputChange('password', val, setPasswordInput)
+              }
               error={errors.password}
-              showIndicator={false} 
+              showIndicator={false}
             />
 
             {/* SUBMIT BUTTON */}
-            <button 
+            <button
               type="submit"
               className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-md active:scale-95 text-base tracking-wide mt-3"
             >
@@ -145,14 +180,17 @@ export default function CustomerLogin({
           {/* LINK TO REGISTRATION PAGE */}
           <div className="text-xs text-skin-muted pt-1">
             Don't have an account?{' '}
-            <a href="/register/customer" className="text-brand-yellow font-bold underline">
+            <a
+              href="/register/customer"
+              className="text-brand-yellow font-bold underline"
+            >
               Register Account
             </a>
           </div>
 
           {/* Trouble signing in? */}
           <div className="pt-1">
-            <button 
+            <button
               type="button"
               onClick={() => setShowTroubleModal(true)}
               className="text-xs text-skin-muted hover:text-skin-base underline font-medium"
@@ -166,11 +204,13 @@ export default function CustomerLogin({
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-skin-base/30" />
             </div>
-            <span className="relative bg-skin-base px-4 text-xs text-skin-muted uppercase font-bold tracking-widest">OR</span>
+            <span className="relative bg-skin-base px-4 text-xs text-skin-muted uppercase font-bold tracking-widest">
+              OR
+            </span>
           </div>
 
           {/* Google Auth Button */}
-          <button 
+          <button
             type="button"
             onClick={() => signIn('google')}
             className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base/40 px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base shadow-sm hover:opacity-95 transition-opacity"
@@ -181,12 +221,12 @@ export default function CustomerLogin({
         </div>
       </div>
 
-      <BottomAlert 
-        isOpen={alertConfig.isOpen} 
-        onClose={() => setAlertConfig(p => ({ ...p, isOpen: false }))} 
-        title={alertConfig.title} 
-        message={alertConfig.message} 
-        type={alertConfig.type} 
+      <BottomAlert
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig((p) => ({ ...p, isOpen: false }))}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
       />
     </div>
   );

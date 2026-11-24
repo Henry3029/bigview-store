@@ -1,18 +1,19 @@
 'use client';
 
 import React from 'react';
-import { 
-  ShoppingBag, 
-  Wallet, 
-  Star, 
-  Clock, 
-  MapPin, 
-  Headphones, 
-  Settings, 
-  ArrowRight
+import {
+  ShoppingBag,
+  Wallet,
+  Star,
+  Clock,
+  MapPin,
+  Headphones,
+  Settings,
+  ArrowRight,
+  LogOut,
 } from 'lucide-react';
-import Link from 'next/link'; // Make sure to import Link if you use it, or use a styled <a> tag
-
+import Link from 'next/link';
+import { useStore } from '@/context/StoreContext';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -20,23 +21,47 @@ interface UserProfileModalProps {
   onOpenAuth?: () => void;
 }
 
-export default function UserProfileModal({ isOpen, onClose, onOpenAuth }: UserProfileModalProps) {
+export default function UserProfileModal({
+  isOpen,
+  onClose,
+  onOpenAuth,
+}: UserProfileModalProps) {
+  const {
+    isCustomer,
+    isOwner,
+    customerAccount,
+    ownerAccount,
+    setIsCustomer,
+    setIsOwner,
+  } = useStore();
+
   if (!isOpen) return null;
+
+  const activeAccount = isCustomer
+    ? customerAccount
+    : isOwner
+    ? ownerAccount
+    : null;
+
+  const handleLogout = () => {
+    setIsCustomer(false);
+    setIsOwner(false);
+    onClose();
+  };
 
   return (
     <>
       {/* Backdrop */}
-      <div 
-        onClick={onClose} 
-        className="fixed inset-0 z-40 bg-transparent" 
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-40 bg-transparent"
       />
 
       {/* Outer positioning */}
       <div className="absolute top-[48px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
-        
         {/* Click-stop wrapper */}
-        <div 
-          onClick={(e) => e.stopPropagation()} 
+        <div
+          onClick={(e) => e.stopPropagation()}
           className="relative w-full max-w-[310px] mr-1 pointer-events-auto shadow-2xl"
         >
           {/* Caret Pointer */}
@@ -44,64 +69,122 @@ export default function UserProfileModal({ isOpen, onClose, onOpenAuth }: UserPr
 
           {/* MAIN MODAL BOX */}
           <div className="bg-skin-card border border-skin-base/40 shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
-
-            {/* Sign In / Register Button */}
-<Link 
-  href="/login/customer"
-  onClick={onClose}
-  className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2 text-center"
->
-  <span>SIGN IN / REGISTER</span>
-  <ArrowRight className="w-4 h-4" />
-</Link>
+            {/* Auth Header / Sign In Button */}
+            {activeAccount ? (
+              <div className="bg-skin-base border border-skin-base/40 rounded-xl p-3 flex items-center justify-between gap-2">
+                <div className="min-w-0 text-left">
+                  <p className="text-[10px] uppercase font-extrabold tracking-wider text-skin-muted">
+                    {isOwner ? 'Store Owner' : 'Customer Account'}
+                  </p>
+                  <p className="text-xs font-bold truncate text-skin-base">
+                    {activeAccount.name || activeAccount.email}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition shrink-0"
+                  aria-label="Sign out"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : onOpenAuth ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenAuth();
+                }}
+                className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2 text-center"
+              >
+                <span>SIGN IN / REGISTER</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <Link
+                href="/login/customer"
+                onClick={onClose}
+                className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2 text-center"
+              >
+                <span>SIGN IN / REGISTER</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
 
             {/* Orders & Credit Balance */}
             <div className="grid grid-cols-2 gap-2">
-              <div 
+              <button
+                type="button"
                 onClick={onClose}
                 className="flex flex-col items-center text-center cursor-pointer group"
               >
                 <div className="p-2.5 rounded-full bg-skin-base text-brand-yellow shadow-xs mb-1.5 group-hover:scale-105 transition">
                   <ShoppingBag className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-xs text-skin-base">Your Orders</span>
-              </div>
+                <span className="font-bold text-xs text-skin-base">
+                  Your Orders
+                </span>
+              </button>
 
-              <div 
+              <button
+                type="button"
                 onClick={onClose}
                 className="flex flex-col items-center text-center cursor-pointer group"
               >
                 <div className="p-2.5 rounded-full bg-skin-base text-brand-yellow shadow-xs mb-1.5 group-hover:scale-105 transition">
                   <Wallet className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-xs text-skin-base">Credit Balance</span>
-              </div>
+                <span className="font-bold text-xs text-skin-base">
+                  Credit Balance
+                </span>
+              </button>
             </div>
 
             {/* Bottom Vertical List */}
             <div className="flex flex-col gap-0.5 pt-1 border-t border-skin-base/30">
-              <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left"
+              >
                 <Star className="w-3.5 h-3.5 text-brand-yellow shrink-0" />
                 <span>Your Reviews</span>
               </button>
-              <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left"
+              >
                 <Clock className="w-3.5 h-3.5 text-skin-muted shrink-0" />
                 <span>Browsing History</span>
               </button>
-              <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left"
+              >
                 <MapPin className="w-3.5 h-3.5 text-skin-muted shrink-0" />
                 <span>Delivery / Pickup Address</span>
               </button>
-              <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base border-b border-skin-base/20 hover:bg-skin-base/50 transition text-left"
+              >
                 <Headphones className="w-3.5 h-3.5 text-skin-muted shrink-0" />
                 <span>Customer Support</span>
               </button>
-              <button onClick={onClose} className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base hover:bg-skin-base/50 transition text-left">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-3 p-2 rounded-lg text-xs font-semibold text-skin-base hover:bg-skin-base/50 transition text-left"
+              >
                 <Settings className="w-3.5 h-3.5 text-skin-muted shrink-0" />
                 <span>Settings</span>
               </button>
             </div>
-
           </div>
         </div>
       </div>

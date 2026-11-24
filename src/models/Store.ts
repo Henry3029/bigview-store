@@ -9,6 +9,8 @@ export interface IStore extends Document {
   profileUrl: string;
   ownerEmail: string;
   passwordHash: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const StoreSchema = new Schema<IStore>(
@@ -19,7 +21,13 @@ const StoreSchema = new Schema<IStore>(
     phone: { type: String, trim: true },
     bannerUrl: { type: String, default: '' },
     profileUrl: { type: String, default: '' },
-    ownerEmail: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    ownerEmail: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     passwordHash: { type: String, required: true },
   },
   {
@@ -27,6 +35,7 @@ const StoreSchema = new Schema<IStore>(
   }
 );
 
-const Store = mongoose.models.Store || mongoose.model<IStore>('Store', StoreSchema);
+const Store =
+  mongoose.models.Store || mongoose.model<IStore>('Store', StoreSchema);
 
 export default Store;
