@@ -249,3 +249,5 @@ export const StoreProvider: React.FC<{
     await addItemAction({
       name: newItemData.name,
       price: newItemData.price,
+});
+}
