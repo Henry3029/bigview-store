@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Lock, Tag, X } from 'lucide-react';
+import { Lock, Tag } from 'lucide-react';
 import PasswordField from '@/components/PasswordField';
 import BottomAlert from '@/components/BottomAlert';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { signIn } from 'next-auth/react';
+import CloseToStoreButton from '@/components/CloseToStoreButton';
 
 interface CustomerLoginProps {
   onClose?: () => void;
@@ -94,24 +95,17 @@ export default function CustomerLogin({
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-skin-base relative px-3 py-3">
+      {/* Close to Store / Modal Button */}
+      <CloseToStoreButton
+        onClick={onClose}
+        className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+      />
+
       {/* HEADER BAR */}
-      <div className="w-full flex items-center justify-between px-4 py-4 sm:px-8 border-b border-skin-base/25">
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 text-skin-muted hover:text-skin-base transition rounded-full hover:bg-skin-card"
-            aria-label="Close"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        )}
-
-        <h1 className="text-xl sm:text-2xl font-black text-[#D4AF37] tracking-wider absolute left-1/2 -translate-x-1/2">
-          BIGVIEW
-        </h1>
-
-        <div className="w-10" />
+      <div className="w-full flex items-center justify-end px-4 py-3 sm:px-8 border-b border-skin-base/25">
+        <span className="text-xs font-bold text-skin-muted uppercase tracking-wider">
+          Customer Portal
+        </span>
       </div>
 
       {/* CONTENT STACK (No Container Card) */}
@@ -179,7 +173,7 @@ export default function CustomerLogin({
 
           {/* LINK TO REGISTRATION PAGE */}
           <div className="text-xs text-skin-muted pt-1">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a
               href="/register/customer"
               className="text-brand-yellow font-bold underline"
