@@ -100,7 +100,7 @@ export async function placeOrderAction(
 
   const order = await Order.create({
     customerName: customerName.trim(),
-    customerPhone: customerPhone.trim(),
+    customerPhone: phone.trim(),
     items: cartItems.map((i) => ({
       itemId: i.id || i._id,
       name: i.name,
