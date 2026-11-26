@@ -269,15 +269,21 @@ export async function loginCustomerAction(email: string, pass: string) {
     const customer = await Customer.findOne({
       email: email.trim().toLowerCase(),
     });
+    
+    console.log('[loginCustomerAction] DB record returned:', customer);
 
     if (!customer) {
       return { success: false, message: 'Invalid Email or password' };
     }
+    
+    console.log('[loginCustomerAction] Stored email:', customer.email);
+    console.log('[loginCustomerAction] Stored password/hash:', customer.password);
 
     const isPasswordValid = await bcrypt.compare(pass, customer.password);
+    console.log('[loginCustomerAction] Password match result:', isPasswordValid);
 
     if (!isPasswordValid) {
-      return { success: false, message: 'Invalid Email or password' };
+      return { success: false, message: 'Invalid password' };
     }
 
     return {
