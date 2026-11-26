@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, Menu, User, ShoppingBag, Store, X } from 'lucide-react';
+import { ArrowLeft, Search, Menu, User, ShoppingBag, Store } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
 import CartDrawer from './CartDrawer';
@@ -27,14 +27,14 @@ export default function Header({
     isCustomer,
     items,
     placeOrder,
-    loginCustomer,
   } = useStore();
+
+  const router = useRouter();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
-  
 
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
@@ -62,7 +62,7 @@ export default function Header({
     mobileMenuOpen,
     isProfileModalOpen,
     isSearchOpen,
-    isCartDrawerOpen
+    isCartDrawerOpen,
   ]);
 
   const currentCustomer =
@@ -90,44 +90,32 @@ export default function Header({
           item.category.toLowerCase().includes(searchQuery.trim().toLowerCase())
       )
     : [];
-    
-    const router = useRouter();
 
   const handleCheckout = async (phone: string) => {
-  if (!currentCustomer) {
-    setIsCartDrawerOpen(false);
-    router.push('/login/customer'); // <-- Your dedicated customer login page route
-    return;
-  }
-
-  try {
-    const order = await placeOrder(currentCustomer.name, phone);
-    setIsCartDrawerOpen(false);
-    setAlertConfig({
-      isOpen: true,
-      title: 'Order Placed!',
-      message: `Your 6-digit pickup verification PIN is ${order.verificationPin}.`,
-      type: 'success',
-    });
-  } catch (err) {
-    console.error('Header checkout error:', err);
-    setAlertConfig({
-      isOpen: true,
-      title: 'Checkout Failed',
-      message: 'Could not complete your order. Please try again.',
-      type: 'error',
-    });
-  }
-};
-
-
-  const handleCustomerLogin = async (email: string, pass: string) => {
-    const success = await loginCustomer(email, pass);
-    if (success) {
-      setShowCustomerAuthModal(false);
-      setIsCartDrawerOpen(true);
+    if (!currentCustomer) {
+      setIsCartDrawerOpen(false);
+      router.push('/login/customer');
+      return;
     }
-    return success;
+
+    try {
+      const order = await placeOrder(currentCustomer.name, phone);
+      setIsCartDrawerOpen(false);
+      setAlertConfig({
+        isOpen: true,
+        title: 'Order Placed!',
+        message: `Your 6-digit pickup verification PIN is ${order.verificationPin}.`,
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Header checkout error:', err);
+      setAlertConfig({
+        isOpen: true,
+        title: 'Checkout Failed',
+        message: 'Could not complete your order. Please try again.',
+        type: 'error',
+      });
+    }
   };
 
   return (
@@ -380,26 +368,24 @@ export default function Header({
         </div>
       )}
 
-      {/* User Profile Modal Integration with onOpenAuth */}
+      {/* User Profile Modal */}
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        
       />
 
       {/* Cart Drawer Integration */}
       <CartDrawer
-  isOpen={isCartDrawerOpen}
-  onClose={() => setIsCartDrawerOpen(false)}
-  cart={cart}
-  currentCustomer={currentCustomer}
-  onCheckout={handleCheckout}
-  onRequireAuth={() => {
-    setIsCartDrawerOpen(false);
-    router.push('/login/customer'); // <-- Your dedicated customer login page route
-  }}
-/>
-
+        isOpen={isCartDrawerOpen}
+        onClose={() => setIsCartDrawerOpen(false)}
+        cart={cart}
+        currentCustomer={currentCustomer}
+        onCheckout={handleCheckout}
+        onRequireAuth={() => {
+          setIsCartDrawerOpen(false);
+          router.push('/login/customer');
+        }}
+      />
 
       <BottomAlert
         isOpen={alertConfig.isOpen}
