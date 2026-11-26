@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
 import { signIn } from 'next-auth/react';
-import { useStore } from '@/context/StoreContext';
+import { StoreProvider, useStore } from '@/context/StoreContext';
 import PasswordField from '@/components/PasswordField';
 import BottomAlert from '@/components/BottomAlert';
 import CloseToStoreButton from '@/components/CloseToStoreButton';
