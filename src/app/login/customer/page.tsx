@@ -11,7 +11,7 @@ import BottomAlert from '@/components/BottomAlert';
 import CloseToStoreButton from '@/components/CloseToStoreButton';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 
-export default function CustomerLoginPage() {
+function CustomerLoginContent() {
   const router = useRouter();
   const { loginCustomer } = useStore();
 
