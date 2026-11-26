@@ -49,8 +49,7 @@ export default function Header({
       mobileMenuOpen ||
       isProfileModalOpen ||
       isSearchOpen ||
-      isCartDrawerOpen ||
-      
+      isCartDrawerOpen
     ) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -63,8 +62,7 @@ export default function Header({
     mobileMenuOpen,
     isProfileModalOpen,
     isSearchOpen,
-    isCartDrawerOpen,
-    
+    isCartDrawerOpen
   ]);
 
   const currentCustomer =
@@ -402,8 +400,6 @@ export default function Header({
   }}
 />
 
-
-      
 
       <BottomAlert
         isOpen={alertConfig.isOpen}
