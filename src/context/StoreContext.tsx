@@ -73,8 +73,8 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{
   children: React.ReactNode;
-  initialItems: Item[];
-  initialStore: StoreInfo;
+  initialItems?: Item[];
+  initialStore?: StoreInfo;
 }> = ({ children, initialItems, initialStore }) => {
   const [store, setStore] = useState<StoreInfo>(initialStore);
   const [items, setItems] = useState<Item[]>(initialItems);

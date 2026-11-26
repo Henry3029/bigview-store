@@ -198,3 +198,19 @@ export default function CustomerLoginPage() {
     </div>
   );
 }
+
+export default function CustomerLoginPage() {
+  return (
+    <StoreProvider
+      initialItems={[]}
+      initialStore={{
+        name: 'BIGVIEW Store',
+        bannerUrl: '',
+        profileUrl: '',
+        ownerEmail: '',
+      }}
+    >
+      <CustomerLoginContent />
+    </StoreProvider>
+  );
+}
