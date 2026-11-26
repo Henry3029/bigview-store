@@ -23,11 +23,11 @@ export default function BottomAlert({
   return (
     <div 
       onClick={onClose}
-      className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity animate-modal-slide-up"
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-4 animate-in slide-in-from-bottom-full duration-300 ease-out text-left relative"
+        className="w-full sm:max-w-md bg-skin-card rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-skin-base space-y-4 animate-modal-slide-up text-left relative"
       >
         {/* Header with Icon & Close Button */}
         <div className="flex justify-between items-center border-b border-skin-base pb-3">

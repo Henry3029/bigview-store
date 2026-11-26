@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, Menu, User, ShoppingBag, Store, X } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import UserProfileModal from './UserProfileModal';
 import CartDrawer from './CartDrawer';
-import CustomerLogin from './CustomerLogin';
 import BottomAlert from './BottomAlert';
 
 interface HeaderProps {
@@ -34,7 +34,7 @@ export default function Header({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
-  const [showCustomerAuthModal, setShowCustomerAuthModal] = useState(false);
+  
 
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
@@ -50,7 +50,7 @@ export default function Header({
       isProfileModalOpen ||
       isSearchOpen ||
       isCartDrawerOpen ||
-      showCustomerAuthModal
+      
     ) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -64,7 +64,7 @@ export default function Header({
     isProfileModalOpen,
     isSearchOpen,
     isCartDrawerOpen,
-    showCustomerAuthModal,
+    
   ]);
 
   const currentCustomer =
@@ -92,33 +92,36 @@ export default function Header({
           item.category.toLowerCase().includes(searchQuery.trim().toLowerCase())
       )
     : [];
+    
+    const router = useRouter();
 
   const handleCheckout = async (phone: string) => {
-    if (!currentCustomer) {
-      setIsCartDrawerOpen(false);
-      setShowCustomerAuthModal(true);
-      return;
-    }
+  if (!currentCustomer) {
+    setIsCartDrawerOpen(false);
+    router.push('/login/customer'); // <-- Your dedicated customer login page route
+    return;
+  }
 
-    try {
-      const order = await placeOrder(currentCustomer.name, phone);
-      setIsCartDrawerOpen(false);
-      setAlertConfig({
-        isOpen: true,
-        title: 'Order Placed!',
-        message: `Your 6-digit pickup verification PIN is ${order.verificationPin}.`,
-        type: 'success',
-      });
-    } catch (err) {
-      console.error('Header checkout error:', err);
-      setAlertConfig({
-        isOpen: true,
-        title: 'Checkout Failed',
-        message: 'Could not complete your order. Please try again.',
-        type: 'error',
-      });
-    }
-  };
+  try {
+    const order = await placeOrder(currentCustomer.name, phone);
+    setIsCartDrawerOpen(false);
+    setAlertConfig({
+      isOpen: true,
+      title: 'Order Placed!',
+      message: `Your 6-digit pickup verification PIN is ${order.verificationPin}.`,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error('Header checkout error:', err);
+    setAlertConfig({
+      isOpen: true,
+      title: 'Checkout Failed',
+      message: 'Could not complete your order. Please try again.',
+      type: 'error',
+    });
+  }
+};
+
 
   const handleCustomerLogin = async (email: string, pass: string) => {
     const success = await loginCustomer(email, pass);
@@ -383,55 +386,24 @@ export default function Header({
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        onOpenAuth={() => {
-          setIsProfileModalOpen(false);
-          setShowCustomerAuthModal(true);
-        }}
+        
       />
 
       {/* Cart Drawer Integration */}
       <CartDrawer
-        isOpen={isCartDrawerOpen}
-        onClose={() => setIsCartDrawerOpen(false)}
-        cart={cart}
-        currentCustomer={currentCustomer}
-        onCheckout={handleCheckout}
-        onRequireAuth={() => {
-          setIsCartDrawerOpen(false);
-          setShowCustomerAuthModal(true);
-        }}
-      />
+  isOpen={isCartDrawerOpen}
+  onClose={() => setIsCartDrawerOpen(false)}
+  cart={cart}
+  currentCustomer={currentCustomer}
+  onCheckout={handleCheckout}
+  onRequireAuth={() => {
+    setIsCartDrawerOpen(false);
+    router.push('/login/customer'); // <-- Your dedicated customer login page route
+  }}
+/>
 
-      {/* Customer Sign-In Modal */}
-      {showCustomerAuthModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="min-h-screen flex items-center justify-center p-2 sm:p-4 relative">
-            <button
-              type="button"
-              onClick={() => setShowCustomerAuthModal(false)}
-              className="fixed top-4 right-4 z-50 bg-skin-card border border-skin-base p-2 rounded-full shadow-lg"
-              aria-label="Close customer sign-in modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="w-full max-w-lg bg-skin-base rounded-3xl overflow-hidden shadow-2xl">
-              <CustomerLogin
-                onClose={() => setShowCustomerAuthModal(false)}
-                onLogin={handleCustomerLogin}
-                setShowTroubleModal={() => {
-                  setAlertConfig({
-                    isOpen: true,
-                    title: 'Password Help',
-                    message:
-                      'Please contact store support or register a new customer account.',
-                    type: 'info',
-                  });
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+
+      
 
       <BottomAlert
         isOpen={alertConfig.isOpen}

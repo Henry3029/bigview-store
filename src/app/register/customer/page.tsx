@@ -9,6 +9,7 @@ import Storefront from '@/components/Storefront';
 import { signIn } from 'next-auth/react';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import CloseToStoreButton from '@/components/CloseToStoreButton';
 
 // 1. Full-Page Immersive Authentication Component
 function CustomerPortalAuthContent() {
@@ -128,6 +129,10 @@ function CustomerPortalAuthContent() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
+    <CloseToStoreButton 
+    href='/'
+    className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+    />
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         {registrationSuccessMessage && (
           <div className="w-full bg-emerald-600 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md text-center animate-in fade-in duration-300">
@@ -137,7 +142,7 @@ function CustomerPortalAuthContent() {
 
         <div className="space-y-1.5 flex flex-col items-center">
           <h2 className="text-2xl sm:text-4xl font-black font-sans text-[#D4AF37] tracking-normal">
-            Customer Registration
+            Bigview store
           </h2>
           <p className="text-xs sm:text-sm text-emerald-500 max-w-xs flex items-center justify-center gap-1.5 font-medium">
             <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -157,15 +162,15 @@ function CustomerPortalAuthContent() {
               </label>
               <input
                 type="text"
-                placeholder="e.g. John"
+                placeholder="Enter first name"
                 value={firstNameInput}
                 onChange={(e) =>
                   handleInputChange('firstName', e.target.value, setFirstNameInput)
                 }
-                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+                className={`w-full bg-skin-base border px-3.5 py-2 rounded-l text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.firstName
                     ? 'border-red-500'
-                    : 'border-skin-base/40 focus:border-brand-yellow'
+                    : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
               {errors.firstName && (
@@ -181,7 +186,7 @@ function CustomerPortalAuthContent() {
               </label>
               <input
                 type="text"
-                placeholder="e.g. Doe"
+                placeholder="Enter surname"
                 value={surnameInput}
                 onChange={(e) =>
                   handleInputChange('surname', e.target.value, setSurnameInput)
@@ -189,7 +194,7 @@ function CustomerPortalAuthContent() {
                 className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.surname
                     ? 'border-red-500'
-                    : 'border-skin-base/40 focus:border-brand-yellow'
+                    : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
               {errors.surname && (
@@ -214,7 +219,7 @@ function CustomerPortalAuthContent() {
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.phone
                   ? 'border-red-500'
-                  : 'border-skin-base/40 focus:border-brand-yellow'
+                  : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.phone && (
@@ -230,7 +235,7 @@ function CustomerPortalAuthContent() {
             </label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="Enter Email"
               value={emailInput}
               onChange={(e) =>
                 handleInputChange('email', e.target.value, setEmailInput)
@@ -238,7 +243,7 @@ function CustomerPortalAuthContent() {
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.email
                   ? 'border-red-500'
-                  : 'border-skin-base/40 focus:border-brand-yellow'
+                  : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.email && (

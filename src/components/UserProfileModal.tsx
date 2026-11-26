@@ -18,13 +18,11 @@ import { useStore } from '@/context/StoreContext';
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenAuth?: () => void;
 }
 
 export default function UserProfileModal({
   isOpen,
   onClose,
-  onOpenAuth,
 }: UserProfileModalProps) {
   const {
     isCustomer,
@@ -58,7 +56,7 @@ export default function UserProfileModal({
       />
 
       {/* Outer positioning */}
-      <div className="absolute top-[48px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+      <div className="fixed top-[48px] inset-x-0 z-50 flex justify-end px-3 sm:px-4 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
         {/* Click-stop wrapper */}
         <div
           onClick={(e) => e.stopPropagation()}
@@ -69,7 +67,7 @@ export default function UserProfileModal({
 
           {/* MAIN MODAL BOX */}
           <div className="bg-skin-card border border-skin-base/40 shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
-            {/* Auth Header / Sign In Button */}
+            {/* Auth Header / Sign In Link */}
             {activeAccount ? (
               <div className="bg-skin-base border border-skin-base/40 rounded-xl p-3 flex items-center justify-between gap-2">
                 <div className="min-w-0 text-left">
@@ -90,18 +88,6 @@ export default function UserProfileModal({
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            ) : onOpenAuth ? (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAuth();
-                }}
-                className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-95 transition shadow-sm text-sm flex items-center justify-center gap-2 text-center"
-              >
-                <span>SIGN IN / REGISTER</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
             ) : (
               <Link
                 href="/login/customer"

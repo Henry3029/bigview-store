@@ -11,6 +11,7 @@ import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
 import { Item, StoreInfo } from '@/types';
 import { useRouter } from 'next/navigation';
+import CloseToStoreButton from '@/components/CloseToStoreButton';
 
 // 1. Full-Page Immersive Authentication Component
 function OwnerPortalAuthContent() {
@@ -131,6 +132,10 @@ function OwnerPortalAuthContent() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
+    <CloseToStoreButton 
+    href='/'
+    className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+    />
 
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
@@ -167,7 +172,7 @@ function OwnerPortalAuthContent() {
                 value={firstNameInput}
                 onChange={e => handleInputChange('firstName', e.target.value, setFirstNameInput)}
                 className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                  errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                  errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
               {errors.firstName && <p className="text-[11px] text-red-500 font-medium">{errors.firstName}</p>}
@@ -182,7 +187,7 @@ function OwnerPortalAuthContent() {
                 value={surnameInput}
                 onChange={e => handleInputChange('surname', e.target.value, setSurnameInput)}
                 className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                  errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                  errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
               {errors.surname && <p className="text-[11px] text-red-500 font-medium">{errors.surname}</p>}
@@ -198,7 +203,7 @@ function OwnerPortalAuthContent() {
               value={storeNameInput}
               onChange={e => handleInputChange('storeName', e.target.value, setStoreNameInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.storeName && <p className="text-[11px] text-red-500 font-medium">{errors.storeName}</p>}
@@ -213,7 +218,7 @@ function OwnerPortalAuthContent() {
               value={phoneInput}
               onChange={e => handleInputChange('phone', e.target.value, setPhoneInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.phone && <p className="text-[11px] text-red-500 font-medium">{errors.phone}</p>}
@@ -228,7 +233,7 @@ function OwnerPortalAuthContent() {
               value={emailInput}
               onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}

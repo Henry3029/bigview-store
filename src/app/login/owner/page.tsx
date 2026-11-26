@@ -11,6 +11,7 @@ import { signIn } from "next-auth/react";
 import { Lock } from 'lucide-react';
 import { getItems, getStoreInfo } from '@/app/actions';
 import { Item, StoreInfo } from '@/types';
+import CloseToStoreButton from '@/components/CloseToStoreButton';
 
 // 1. Full-Page Immersive Authentication Component
 function OwnerLoginContent() {
@@ -105,6 +106,10 @@ function OwnerLoginContent() {
   // Otherwise, render full-page immersive login view
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
+  
+    <CloseToStoreButton
+    className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+    />
       
       {/* Centered Content Stack */}
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
@@ -133,7 +138,7 @@ function OwnerLoginContent() {
               value={emailInput}
               onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
               className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
-                errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/40 focus:border-brand-yellow'
+                errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
             {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}
@@ -169,6 +174,7 @@ function OwnerLoginContent() {
         {/* Trouble signing in? */}
         <div>
           <button 
+          type="button"
             onClick={() => setShowTroubleModal(true)}
             className="text-xs text-skin-muted hover:text-skin-base underline font-medium"
           >

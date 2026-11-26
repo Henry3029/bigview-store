@@ -1,32 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Lock, Tag } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Lock } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import { useStore } from '@/context/StoreContext';
 import PasswordField from '@/components/PasswordField';
 import BottomAlert from '@/components/BottomAlert';
-import { GoogleIcon } from '@/components/icons/GoogleIcon';
-import { signIn } from 'next-auth/react';
 import CloseToStoreButton from '@/components/CloseToStoreButton';
+import { GoogleIcon } from '@/components/icons/GoogleIcon';
 
-interface CustomerLoginProps {
-  onClose?: () => void;
-  onLogin: (email: string, pass: string) => Promise<boolean> | boolean;
-  setShowTroubleModal: (val: boolean) => void;
-}
+export default function CustomerLoginPage() {
+  const router = useRouter();
+  const { loginCustomer } = useStore();
 
-export default function CustomerLogin({
-  onClose,
-  onLogin,
-  setShowTroubleModal,
-}: CustomerLoginProps) {
-  // Form states
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-
-  // Validation Errors State
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Alert Config State
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
     title: '',
@@ -34,7 +25,6 @@ export default function CustomerLogin({
     type: 'success' as 'success' | 'error' | 'info',
   });
 
-  // Clear specific error field helper
   const handleInputChange = (
     field: string,
     value: string,
@@ -65,8 +55,8 @@ export default function CustomerLogin({
     setErrors({});
 
     try {
-      const success = await onLogin(emailInput, passwordInput);
-      if (success === false) {
+      const success = await loginCustomer(emailInput.trim(), passwordInput);
+      if (!success) {
         setAlertConfig({
           isOpen: true,
           title: 'Access Denied',
@@ -77,12 +67,7 @@ export default function CustomerLogin({
       }
 
       setPasswordInput('');
-      setAlertConfig({
-        isOpen: true,
-        title: 'Welcome Back',
-        message: 'Login Successful.',
-        type: 'success',
-      });
+      router.push('/');
     } catch {
       setAlertConfig({
         isOpen: true,
@@ -95,21 +80,12 @@ export default function CustomerLogin({
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-skin-base relative px-3 py-3">
-      {/* Close to Store / Modal Button */}
-      <CloseToStoreButton
-        onClick={onClose}
-        className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
-      />
+      <div className="flex-1 flex flex-col items-center justify-center px-3 py-2">
+        <CloseToStoreButton
+          onClick={() => router.push('/')}
+          className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+        />
 
-      {/* HEADER BAR */}
-      <div className="w-full flex items-center justify-end px-4 py-3 sm:px-8 border-b border-skin-base/25">
-        <span className="text-xs font-bold text-skin-muted uppercase tracking-wider">
-          Customer Portal
-        </span>
-      </div>
-
-      {/* CONTENT STACK (No Container Card) */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
           <div className="space-y-1">
             <h2 className="text-2xl sm:text-4xl font-black text-[#D4AF37] mb-1">
@@ -119,13 +95,8 @@ export default function CustomerLogin({
               <Lock className="w-3.5 h-3.5" />
               <span>All data is safeguarded</span>
             </div>
-            <div className="flex items-center justify-center gap-1.5 text-xs text-skin-muted font-medium bg-skin-base/50 py-1.5 px-3 rounded-full mt-3">
-              <Tag className="w-3.5 h-3.5 text-brand-yellow" />
-              <span>Get lower price on all items</span>
-            </div>
           </div>
 
-          {/* Auth form */}
           <form
             onSubmit={handleSubmit}
             noValidate
@@ -145,13 +116,12 @@ export default function CustomerLogin({
                 className="w-full bg-skin-base border border-skin-base/40 px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
               />
               {errors.email && (
-                <p className="text-[11px] text-red-500 font-medium">
+                <p className="text-[11px] text-red-500 font-medium mt-1">
                   {errors.email}
                 </p>
               )}
             </div>
 
-            {/* Password Field */}
             <PasswordField
               label="Password"
               value={passwordInput}
@@ -162,38 +132,42 @@ export default function CustomerLogin({
               showIndicator={false}
             />
 
-            {/* SUBMIT BUTTON */}
             <button
               type="submit"
-              className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-md active:scale-95 text-base tracking-wide mt-3"
+              className="w-full bg-brand-yellow text-black font-extrabold py-2.5 rounded-full hover:opacity-90 transition shadow-md active:scale-95 text-base tracking-wide mt-3"
             >
               Sign In
             </button>
           </form>
 
-          {/* LINK TO REGISTRATION PAGE */}
           <div className="text-xs text-skin-muted pt-1">
             Don&apos;t have an account?{' '}
-            <a
+            <Link
               href="/register/customer"
               className="text-brand-yellow font-bold underline"
             >
               Register Account
-            </a>
+            </Link>
           </div>
 
-          {/* Trouble signing in? */}
           <div className="pt-1">
             <button
               type="button"
-              onClick={() => setShowTroubleModal(true)}
+              onClick={() =>
+                setAlertConfig({
+                  isOpen: true,
+                  title: 'Password Help',
+                  message:
+                    'Please contact store support or register a new customer account.',
+                  type: 'info',
+                })
+              }
               className="text-xs text-skin-muted hover:text-skin-base underline font-medium"
             >
               Trouble signing in?
             </button>
           </div>
 
-          {/* Demarcation OR */}
           <div className="w-full relative flex items-center justify-center py-1">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-skin-base/30" />
@@ -203,10 +177,9 @@ export default function CustomerLogin({
             </span>
           </div>
 
-          {/* Google Auth Button */}
           <button
             type="button"
-            onClick={() => signIn('google')}
+            onClick={() => signIn('google', { callbackUrl: '/' })}
             className="w-full flex items-center justify-center gap-3 bg-skin-card border border-skin-base/40 px-4 py-3.5 rounded-full text-sm font-semibold text-skin-base shadow-sm hover:opacity-95 transition-opacity"
           >
             <GoogleIcon className="w-5 h-5 shrink-0" />

@@ -57,8 +57,8 @@ export default function PasswordField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full bg-skin-base border px-3.5 py-3 pr-11 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm transition-colors ${
-            error ? 'border-red-500 focus:border-red-500' : 'border-skin-base focus:border-brand-yellow'
+          className={`w-full bg-skin-base border px-3.5 py-3 pr-11 rounded-l text-sm focus:outline-none text-skin-base transition-colors ${
+            error ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
           }`}
         />
 
