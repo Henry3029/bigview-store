@@ -137,7 +137,7 @@ function OwnerLoginContent() {
               placeholder="you@example.com"
               value={emailInput}
               onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />

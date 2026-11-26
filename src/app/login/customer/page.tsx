@@ -79,8 +79,8 @@ function CustomerLoginContent() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-skin-base relative px-3 py-3">
-      <div className="flex-1 flex flex-col items-center justify-center px-3 py-2">
+    <div className="min-h-screen w-full flex flex-col bg-skin-base relative px-3 py-2">
+      <div className="flex-1 flex flex-col items-center justify-start px-3 py-2">
         <CloseToStoreButton
           onClick={() => router.push('/')}
           className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
@@ -113,7 +113,7 @@ function CustomerLoginContent() {
                 onChange={(e) =>
                   handleInputChange('email', e.target.value, setEmailInput)
                 }
-                className="w-full bg-skin-base border border-skin-base/40 px-3.5 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
+                className="w-full bg-skin-base border border-skin-base/20 px-3.5 py-3 rounded-none text-sm focus:outline-none focus:border-brand-yellow text-skin-base shadow-sm"
               />
               {errors.email && (
                 <p className="text-[11px] text-red-500 font-medium mt-1">

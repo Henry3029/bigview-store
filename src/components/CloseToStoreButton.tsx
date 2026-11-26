@@ -24,9 +24,9 @@ export default function CloseToStoreButton({
         onClick={onClick}
         aria-label={ariaLabel}
         title={ariaLabel}
-        className={`p-2 rounded-full bg-skin-card border text-skin-base hover:bg-yellow-300 transition shadow-sm ${className}`}
+        className={`p-1 bg-skin-card text-skin-base hover:bg-yellow-300 transition shadow-sm ${className}`}
       >
-        <X className="w-5 h-5" />
+        <X className="w-4 h-4" />
       </button>
     );
   }
@@ -36,9 +36,9 @@ export default function CloseToStoreButton({
       href={href}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className={`p-2 rounded-full bg-skin-card border text-skin-base hover:bg-yellow-300 transition shadow-sm ${className}`}
+      className={`p-1 bg-skin-card text-skin-base hover:bg-yellow-300 transition shadow-sm ${className}`}
     >
-      <X className="w-5 h-5" />
+      <X className="w-4 h-4" />
     </Link>
   );
 }

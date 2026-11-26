@@ -171,7 +171,7 @@ function OwnerPortalAuthContent() {
                 placeholder="e.g. John"
                 value={firstNameInput}
                 onChange={e => handleInputChange('firstName', e.target.value, setFirstNameInput)}
-                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+                className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
@@ -186,7 +186,7 @@ function OwnerPortalAuthContent() {
                 placeholder="e.g. Doe"
                 value={surnameInput}
                 onChange={e => handleInputChange('surname', e.target.value, setSurnameInput)}
-                className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+                className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                   errors.surname ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
                 }`}
               />
@@ -202,7 +202,7 @@ function OwnerPortalAuthContent() {
               placeholder="e.g. eldgate"
               value={storeNameInput}
               onChange={e => handleInputChange('storeName', e.target.value, setStoreNameInput)}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.storeName ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
@@ -217,7 +217,7 @@ function OwnerPortalAuthContent() {
               placeholder="+234..."
               value={phoneInput}
               onChange={e => handleInputChange('phone', e.target.value, setPhoneInput)}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.phone ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
@@ -232,7 +232,7 @@ function OwnerPortalAuthContent() {
               placeholder="you@example.com"
               value={emailInput}
               onChange={e => handleInputChange('email', e.target.value, setEmailInput)}
-              className={`w-full bg-skin-base border px-3.5 py-3 rounded-xl text-sm focus:outline-none text-skin-base shadow-sm ${
+              className={`w-full bg-skin-base border px-3.5 py-3 rounded-none text-sm focus:outline-none text-skin-base shadow-sm ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-skin-base/20 focus:border-brand-yellow'
               }`}
             />
