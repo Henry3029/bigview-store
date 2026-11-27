@@ -44,12 +44,12 @@ interface StoreContextType {
 
   // Customer Actions
   registerCustomer: (
-    email: string,
-    pass: string,
-    firstName: string,
-    surname: string,
-    phone: string
-  ) => Promise<boolean>;
+  email: string,
+  pass: string,
+  firstName: string,
+  surname: string,
+  phone: string
+) => Promise<{ ok: boolean; code?: string; message?: string }>;
   loginCustomer: (email: string, pass: string) => Promise<boolean>;
 
   resetPassword: (email: string) => Promise<boolean>;
@@ -177,31 +177,43 @@ export const StoreProvider: React.FC<{
 
   // --- Customer Auth ---
   const registerCustomer = async (
-    email: string,
-    pass: string,
-    firstName: string,
-    surname: string,
-    phone: string
-  ): Promise<boolean> => {
-    try {
-      const result = await registerCustomerAction(
-        email,
-        pass,
-        firstName,
-        surname,
-        phone
-      );
-      if (result.success) {
-        setCustomerAccount({ email, passwordHash: pass, storeName: '' });
-        setIsCustomer(true);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Error registering customer:', err);
-      return false;
+  email: string,
+  pass: string,
+  firstName: string,
+  surname: string,
+  phone: string
+): Promise<{ ok: boolean; code?: string; message?: string }> => {
+  try {
+    const result = await registerCustomerAction(
+      email,
+      pass,
+      firstName,
+      surname,
+      phone
+    );
+
+    if (result.success) {
+      setCustomerAccount({ email, passwordHash: pass, storeName: '' });
+      setIsCustomer(true);
+      return { ok: true, message: result.message };
     }
-  };
+
+    return {
+      ok: false,
+      code: result.code,
+      message: result.message,
+    };
+  } catch (err) {
+    console.error('Error registering customer:', err);
+    return {
+      ok: false,
+      code: 'SERVER_ERROR',
+      message:
+    "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
+    };
+  }
+};
+
 
   const loginCustomer = async (email: string, pass: string): Promise<boolean> => {
     try {

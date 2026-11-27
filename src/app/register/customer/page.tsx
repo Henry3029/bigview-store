@@ -93,31 +93,46 @@ function CustomerPortalAuthContent() {
     setErrors({});
 
     try {
-      const registered = await registerCustomer(
-        emailInput,
-        passwordInput,
-        firstNameInput,
-        surnameInput,
-        phoneInput
-      );
+  const result = await registerCustomer(
+    emailInput,
+    passwordInput,
+    firstNameInput,
+    surnameInput,
+    phoneInput
+  );
 
-      if (!registered) {
-        setErrors({
-          email: 'Could not register account. This email may already be in use.',
-        });
-        return;
-      }
-
-      setPasswordInput('');
-      setConfirmPasswordInput('');
-      setRegistrationSuccessMessage('Account registered successfully!');
-    } catch (err) {
-      console.error('Customer registration error:', err);
+  if (!result.ok) {
+    if (result.code === 'DUPLICATE_EMAIL') {
       setErrors({
-        email: 'An unexpected error occurred while registering. Please try again.',
+        email: result.message || 'An account with this email already exists.',
+      });
+    } else {
+      setAlertConfig({
+        isOpen: true,
+        title: 'Registration Failed',
+        message:
+          result.message || 'Could not create your account. Please try again.',
+        type: 'error',
       });
     }
-  };
+    return;
+  }
+
+  setPasswordInput('');
+  setConfirmPasswordInput('');
+  setRegistrationSuccessMessage(
+    result.message || 'Account registered successfully!'
+  );
+} catch (err) {
+  console.error('Customer registration error:', err);
+  setAlertConfig({
+    isOpen: true,
+    title: 'Registration Error',
+    message: 'An unexpected error occurred while registering. Please try again.',
+    type: 'error',
+  });
+}
+
 
   if (isLoading) {
     return <LoadingScreen />;

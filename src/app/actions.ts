@@ -224,18 +224,22 @@ export async function registerCustomerAction(
   firstName: string,
   surname: string,
   phone: string
-) {
+): Promise<{
+  success: boolean;
+  code?: 'DUPLICATE_EMAIL' | 'VALIDATION_ERROR' | 'SERVER_ERROR';
+  message: string;
+}> {
   try {
     await dbConnect();
 
     const normalizedEmail = email.trim().toLowerCase();
-    const existingUser = await Customer.findOne({ email: normalizedEmail });
+    const existingUser = await Customer.findOne({ email: normalizedEmail }).lean();
 
     if (existingUser) {
       return {
         success: false,
-        message:
-          'An account with this email already exists. Please sign in instead.',
+        code: 'DUPLICATE_EMAIL',
+        message: 'An account with this email already exists. Please sign in instead.',
       };
     }
 
@@ -243,7 +247,7 @@ export async function registerCustomerAction(
 
     await Customer.create({
       email: normalizedEmail,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       firstName: firstName.trim(),
       surname: surname.trim(),
       phone: phone.trim(),
@@ -253,15 +257,44 @@ export async function registerCustomerAction(
       success: true,
       message: 'Welcome to Bigview! Your account has been created successfully.',
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to register customer:', error);
+
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code?: number }).code === 11000
+    ) {
+      return {
+        success: false,
+        code: 'DUPLICATE_EMAIL',
+        message: 'An account with this email already exists. Please sign in instead.',
+      };
+    }
+
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      (error as { name?: string }).name === 'ValidationError'
+    ) {
+      return {
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: 'Please check your registration details and try again.',
+      };
+    }
+
     return {
-      success: false,
-      message:
-        'We encountered an issue while creating your account. Please try again shortly.',
-    };
+  success: false,
+  code: 'SERVER_ERROR',
+  message:
+    "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
+};
   }
 }
+
 
 export async function loginCustomerAction(email: string, pass: string) {
   try {
@@ -277,9 +310,9 @@ export async function loginCustomerAction(email: string, pass: string) {
     }
     
     console.log('[loginCustomerAction] Stored email:', customer.email);
-    console.log('[loginCustomerAction] Stored password/hash:', customer.password);
+    console.log('[loginCustomerAction] Stored password/hash:', customer.passwordHash);
 
-    const isPasswordValid = await bcrypt.compare(pass, customer.password);
+    const isPasswordValid = await bcrypt.compare(pass, customer.passwordHash);
     console.log('[loginCustomerAction] Password match result:', isPasswordValid);
 
     if (!isPasswordValid) {
