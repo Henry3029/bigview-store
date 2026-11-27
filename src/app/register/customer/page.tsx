@@ -5,7 +5,7 @@ import { StoreProvider, useStore } from '@/context/StoreContext';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import LoadingScreen from '@/components/LoadingScreen';
 import PasswordField from '@/components/PasswordField';
-import Storefront from '@/components/Storefront';
+import BottomAlert from '@/components/BottomAlert';
 import { signIn } from 'next-auth/react';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -27,9 +27,18 @@ function CustomerPortalAuthContent() {
   const [phoneInput, setPhoneInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
 
-  // Validation Errors State
+  // Alert Config State
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'error' as 'success' | 'error' | 'info',
+  });
+
+  // Validation & Submission States
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Splash Screen Boot Timer Effect
   useEffect(() => {
@@ -50,6 +59,13 @@ function CustomerPortalAuthContent() {
       return () => clearTimeout(timer);
     }
   }, [registrationSuccessMessage, router]);
+
+  // If already signed in as a customer (and not mid-success banner), send to store
+  useEffect(() => {
+    if (!isLoading && isCustomer && !registrationSuccessMessage) {
+      router.replace('/');
+    }
+  }, [isLoading, isCustomer, registrationSuccessMessage, router]);
 
   const handleInputChange = (
     field: string,
@@ -91,63 +107,64 @@ function CustomerPortalAuthContent() {
     }
 
     setErrors({});
+    setIsSubmitting(true);
 
     try {
-  const result = await registerCustomer(
-    emailInput,
-    passwordInput,
-    firstNameInput,
-    surnameInput,
-    phoneInput
-  );
+      const result = await registerCustomer(
+        emailInput,
+        passwordInput,
+        firstNameInput,
+        surnameInput,
+        phoneInput
+      );
 
-  if (!result.ok) {
-    if (result.code === 'DUPLICATE_EMAIL') {
-      setErrors({
-        email: result.message || 'An account with this email already exists.',
-      });
-    } else {
+      if (!result.ok) {
+        if (result.code === 'DUPLICATE_EMAIL') {
+          setErrors({
+            email: result.message || 'An account with this email already exists.',
+          });
+        } else {
+          setAlertConfig({
+            isOpen: true,
+            title: 'Registration Failed',
+            message:
+              result.message ||
+              "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
+            type: 'error',
+          });
+        }
+        return;
+      }
+
+      setPasswordInput('');
+      setConfirmPasswordInput('');
+      setRegistrationSuccessMessage(
+        result.message || 'Account registered successfully!'
+      );
+    } catch (err) {
+      console.error('Customer registration error:', err);
       setAlertConfig({
         isOpen: true,
-        title: 'Registration Failed',
+        title: 'Registration Error',
         message:
-          result.message || 'Could not create your account. Please try again.',
+          "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
         type: 'error',
       });
+    } finally {
+      setIsSubmitting(false);
     }
-    return;
-  }
-
-  setPasswordInput('');
-  setConfirmPasswordInput('');
-  setRegistrationSuccessMessage(
-    result.message || 'Account registered successfully!'
-  );
-} catch (err) {
-  console.error('Customer registration error:', err);
-  setAlertConfig({
-    isOpen: true,
-    title: 'Registration Error',
-    message: 'An unexpected error occurred while registering. Please try again.',
-    type: 'error',
-  });
-}
-
+  };
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  if (isCustomer && !registrationSuccessMessage) {
-    return <Storefront />;
-  }
-
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start px-4 pt-3 pb-12 bg-skin-base text-skin-base relative">
-    <CloseToStoreButton 
-    href='/'
-    className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
-    />
+      <CloseToStoreButton
+        href="/"
+        className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
+      />
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
         {registrationSuccessMessage && (
           <div className="w-full bg-emerald-600 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md text-center animate-in fade-in duration-300">
@@ -290,9 +307,10 @@ function CustomerPortalAuthContent() {
 
           <button
             type="submit"
-            className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 transition shadow-lg text-sm mt-3"
+            disabled={isSubmitting}
+            className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 disabled:opacity-60 transition shadow-lg text-sm mt-3"
           >
-            Register Account
+            {isSubmitting ? 'Registering...' : 'Register Account'}
           </button>
         </form>
 
@@ -326,6 +344,14 @@ function CustomerPortalAuthContent() {
           <span>Continue with Google</span>
         </button>
       </div>
+
+      <BottomAlert
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+      />
     </div>
   );
 }
