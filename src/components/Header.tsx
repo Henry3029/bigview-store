@@ -76,12 +76,22 @@ export default function Header({
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const activeEmail = isOwner
-    ? ownerAccount?.email
-    : isCustomer
-    ? customerAccount?.email
-    : null;
-  const userInitial = activeEmail ? activeEmail.charAt(0).toUpperCase() : null;
+  const activeAccount = isOwner
+  ? ownerAccount
+  : isCustomer
+  ? customerAccount
+  : null;
+
+const activeDisplayText = isOwner
+  ? ownerAccount?.name || ownerAccount?.storeName || ownerAccount?.email
+  : isCustomer
+  ? customerAccount?.name || customerAccount?.email
+  : null;
+
+const userInitial = activeDisplayText
+  ? activeDisplayText.trim().charAt(0).toUpperCase()
+  : null;
+
 
   const searchResults = searchQuery.trim()
     ? items.filter(

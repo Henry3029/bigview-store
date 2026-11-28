@@ -41,9 +41,24 @@ export default function UserProfileModal({
     ? ownerAccount
     : null;
 
+  const displayName = activeAccount
+    ? isOwner
+      ? activeAccount.name || activeAccount.storeName || activeAccount.email
+      : activeAccount.name || activeAccount.email
+    : '';
+
+  const userInitial = displayName
+    ? displayName.trim().charAt(0).toUpperCase()
+    : 'U';
+
   const handleLogout = () => {
     setIsCustomer(false);
     setIsOwner(false);
+    try {
+      window.localStorage.removeItem('bigview_customer_session');
+    } catch (err) {
+      console.error('Failed to clear customer session:', err);
+    }
     onClose();
   };
 
@@ -69,24 +84,23 @@ export default function UserProfileModal({
           <div className="bg-skin-card border border-skin-base/40 shadow-2xl rounded-xl p-4 flex flex-col gap-3.5 text-skin-base max-h-[80vh] overflow-y-auto">
             {/* Auth Header / Sign In Link */}
             {activeAccount ? (
-              <div className="bg-skin-base border border-skin-base/40 rounded-xl p-3 flex items-center justify-between gap-2">
+              <div className="bg-skin-base border border-skin-base/40 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#48BB78] text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-sm">
+                  {userInitial}
+                </div>
                 <div className="min-w-0 text-left">
                   <p className="text-[10px] uppercase font-extrabold tracking-wider text-skin-muted">
                     {isOwner ? 'Store Owner' : 'Customer Account'}
                   </p>
                   <p className="text-xs font-bold truncate text-skin-base">
-                    {activeAccount.name || activeAccount.email}
+                    {displayName}
                   </p>
+                  {activeAccount.email && displayName !== activeAccount.email && (
+                    <p className="text-[11px] truncate text-skin-muted">
+                      {activeAccount.email}
+                    </p>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition shrink-0"
-                  aria-label="Sign out"
-                  title="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
               </div>
             ) : (
               <Link
@@ -170,6 +184,17 @@ export default function UserProfileModal({
                 <Settings className="w-3.5 h-3.5 text-skin-muted shrink-0" />
                 <span>Settings</span>
               </button>
+
+              {activeAccount && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 p-2 mt-1 rounded-lg text-xs font-bold text-red-500 border-t border-skin-base/30 hover:bg-red-500/10 transition text-left"
+                >
+                  <LogOut className="w-3.5 h-3.5 shrink-0" />
+                  <span>Sign Out</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

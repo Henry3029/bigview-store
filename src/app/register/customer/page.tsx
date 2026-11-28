@@ -6,6 +6,7 @@ import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import LoadingScreen from '@/components/LoadingScreen';
 import PasswordField from '@/components/PasswordField';
 import BottomAlert from '@/components/BottomAlert';
+import Spinner from '@/components/Spinner';
 import { signIn } from 'next-auth/react';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -19,7 +20,6 @@ function CustomerPortalAuthContent() {
   // Basic Auth Inputs
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [registrationSuccessMessage, setRegistrationSuccessMessage] = useState<string | null>(null);
 
   // Additional Registration Inputs
   const [firstNameInput, setFirstNameInput] = useState('');
@@ -49,23 +49,12 @@ function CustomerPortalAuthContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Auto-dismiss success message and redirect after successful registration
+  // If already signed in as a customer, send straight to store
   useEffect(() => {
-    if (registrationSuccessMessage) {
-      const timer = setTimeout(() => {
-        setRegistrationSuccessMessage(null);
-        router.push('/login/customer');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [registrationSuccessMessage, router]);
-
-  // If already signed in as a customer (and not mid-success banner), send to store
-  useEffect(() => {
-    if (!isLoading && isCustomer && !registrationSuccessMessage) {
+    if (!isLoading && isCustomer) {
       router.replace('/');
     }
-  }, [isLoading, isCustomer, registrationSuccessMessage, router]);
+  }, [isLoading, isCustomer, router]);
 
   const handleInputChange = (
     field: string,
@@ -138,9 +127,7 @@ function CustomerPortalAuthContent() {
 
       setPasswordInput('');
       setConfirmPasswordInput('');
-      setRegistrationSuccessMessage(
-        result.message || 'Account registered successfully!'
-      );
+      router.push('/');
     } catch (err) {
       console.error('Customer registration error:', err);
       setAlertConfig({
@@ -166,12 +153,6 @@ function CustomerPortalAuthContent() {
         className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
       />
       <div className="w-full max-w-sm space-y-6 flex flex-col items-center text-center">
-        {registrationSuccessMessage && (
-          <div className="w-full bg-emerald-600 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md text-center animate-in fade-in duration-300">
-            {registrationSuccessMessage}
-          </div>
-        )}
-
         <div className="space-y-1.5 flex flex-col items-center">
           <h2 className="text-2xl sm:text-4xl font-black font-sans text-[#D4AF37] tracking-normal">
             Bigview store
@@ -308,9 +289,13 @@ function CustomerPortalAuthContent() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-brand-yellow text-black font-extrabold py-3.5 rounded-full hover:opacity-90 disabled:opacity-60 transition shadow-lg text-sm mt-3"
+            className="w-full min-h-[48px] flex items-center justify-center bg-brand-yellow text-black font-extrabold py-3.5 px-4 rounded-full hover:opacity-90 disabled:opacity-70 transition shadow-lg text-sm mt-3"
           >
-            {isSubmitting ? 'Registering...' : 'Register Account'}
+            {isSubmitting ? (
+              <Spinner className="w-5 h-5 text-black" label="Registering account..." />
+            ) : (
+              'Register Account'
+            )}
           </button>
         </form>
 

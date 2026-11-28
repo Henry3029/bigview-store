@@ -19,6 +19,8 @@ import {
 
 export type NewItemInput = Omit<Item, 'id' | 'createdAt'>;
 
+const CUSTOMER_SESSION_KEY = 'bigview_customer_session';
+
 interface StoreContextType {
   store: StoreInfo;
   items: Item[];
@@ -30,6 +32,7 @@ interface StoreContextType {
   customerAccount: UserAccount | null;
   setIsOwner: (val: boolean) => void;
   setIsCustomer: (val: boolean) => void;
+  signOut: () => void;
 
   // Owner Actions
   registerOwner: (
@@ -44,12 +47,12 @@ interface StoreContextType {
 
   // Customer Actions
   registerCustomer: (
-  email: string,
-  pass: string,
-  firstName: string,
-  surname: string,
-  phone: string
-) => Promise<{ ok: boolean; code?: string; message?: string }>;
+    email: string,
+    pass: string,
+    firstName: string,
+    surname: string,
+    phone: string
+  ) => Promise<{ ok: boolean; code?: string; message?: string }>;
   loginCustomer: (email: string, pass: string) => Promise<boolean>;
 
   resetPassword: (email: string) => Promise<boolean>;
@@ -91,7 +94,9 @@ export const StoreProvider: React.FC<{
     storeName: initialStore.name || 'EL.D.Gate',
   });
 
-  const [customerAccount, setCustomerAccount] = useState<UserAccount | null>(null);
+  const [customerAccount, setCustomerAccount] = useState<UserAccount | null>(
+    null
+  );
 
   // Sync state when initialStore or initialItems load asynchronously
   useEffect(() => {
@@ -106,6 +111,33 @@ export const StoreProvider: React.FC<{
     }
   }, [initialItems]);
 
+  // Hydrate saved customer session on mount (safe non-sensitive profile fields only)
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(CUSTOMER_SESSION_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as UserAccount;
+        if (parsed?.email) {
+          setCustomerAccount(parsed);
+          setIsCustomer(true);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to restore customer session:', err);
+    }
+  }, []);
+
+  const signOut = () => {
+    setIsCustomer(false);
+    setIsOwner(false);
+    setCustomerAccount(null);
+    try {
+      window.localStorage.removeItem(CUSTOMER_SESSION_KEY);
+    } catch (err) {
+      console.error('Failed to clear customer session:', err);
+    }
+  };
+
   // --- Store Owner Auth ---
   const registerOwner = async (
     email: string,
@@ -118,19 +150,27 @@ export const StoreProvider: React.FC<{
     try {
       const normalizedEmail = email.trim().toLowerCase();
       const resolvedStoreName = storeName.trim() || store.name || 'EL.D.Gate';
+      const fullName = [firstName.trim(), surname.trim()]
+        .filter(Boolean)
+        .join(' ');
 
       const actionsModule = await import('@/app/actions');
-      if (typeof (actionsModule as Record<string, unknown>).registerOwnerAction === 'function') {
-        const registerFn = (actionsModule as unknown as {
-          registerOwnerAction: (
-            email: string,
-            pass: string,
-            storeName: string,
-            firstName: string,
-            surname: string,
-            phone: string
-          ) => Promise<{ success: boolean }>;
-        }).registerOwnerAction;
+      if (
+        typeof (actionsModule as Record<string, unknown>).registerOwnerAction ===
+        'function'
+      ) {
+        const registerFn = (
+          actionsModule as unknown as {
+            registerOwnerAction: (
+              email: string,
+              pass: string,
+              storeName: string,
+              firstName: string,
+              surname: string,
+              phone: string
+            ) => Promise<{ success: boolean }>;
+          }
+        ).registerOwnerAction;
 
         const result = await registerFn(
           normalizedEmail,
@@ -145,7 +185,9 @@ export const StoreProvider: React.FC<{
 
       setOwnerAccount({
         email: normalizedEmail,
-        passwordHash: pass,
+        name: fullName || resolvedStoreName,
+        role: 'owner',
+        phone: phone.trim(),
         storeName: resolvedStoreName,
       });
       setIsOwner(true);
@@ -158,13 +200,15 @@ export const StoreProvider: React.FC<{
 
   const loginOwner = async (email: string, pass: string): Promise<boolean> => {
     try {
-      const result = await loginOwnerAction(email, pass);
+      const normalizedEmail = email.trim().toLowerCase();
+      const result = await loginOwnerAction(normalizedEmail, pass);
       if (result.success) {
+        const resolvedStoreName = result.storeName || store.name;
         setIsOwner(true);
         setOwnerAccount({
-          email,
-          passwordHash: pass,
-          storeName: result.storeName || store.name,
+          email: normalizedEmail,
+          role: 'owner',
+          storeName: resolvedStoreName,
         });
         return true;
       }
@@ -177,53 +221,95 @@ export const StoreProvider: React.FC<{
 
   // --- Customer Auth ---
   const registerCustomer = async (
-  email: string,
-  pass: string,
-  firstName: string,
-  surname: string,
-  phone: string
-): Promise<{ ok: boolean; code?: string; message?: string }> => {
-  try {
-    const result = await registerCustomerAction(
-      email,
-      pass,
-      firstName,
-      surname,
-      phone
-    );
-
-    if (result.success) {
-      setCustomerAccount({ email, passwordHash: pass, storeName: '' });
-      setIsCustomer(true);
-      return { ok: true, message: result.message };
-    }
-
-    return {
-      ok: false,
-      code: result.code,
-      message: result.message,
-    };
-  } catch (err) {
-    console.error('Error registering customer:', err);
-    return {
-      ok: false,
-      code: 'SERVER_ERROR',
-      message:
-    "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
-    };
-  }
-};
-
-
-  const loginCustomer = async (email: string, pass: string): Promise<boolean> => {
+    email: string,
+    pass: string,
+    firstName: string,
+    surname: string,
+    phone: string
+  ): Promise<{ ok: boolean; code?: string; message?: string }> => {
     try {
+      const result = await registerCustomerAction(
+        email,
+        pass,
+        firstName,
+        surname,
+        phone
+      );
+
+      if (result.success) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const fullName = [firstName.trim(), surname.trim()]
+          .filter(Boolean)
+          .join(' ');
+
+        const accountData: UserAccount = {
+          email: normalizedEmail,
+          name: fullName || normalizedEmail,
+          role: 'customer',
+          phone: phone.trim(),
+          storeName: '',
+        };
+
+        setCustomerAccount(accountData);
+        setIsCustomer(true);
+
+        try {
+          window.localStorage.setItem(
+            CUSTOMER_SESSION_KEY,
+            JSON.stringify(accountData)
+          );
+        } catch (storageErr) {
+          console.error('Failed to save customer session:', storageErr);
+        }
+
+        return { ok: true, message: result.message };
+      }
+
+      return {
+        ok: false,
+        code: result.code,
+        message: result.message,
+      };
+    } catch (err) {
+      console.error('Error registering customer:', err);
+      return {
+        ok: false,
+        code: 'SERVER_ERROR',
+        message:
+          "We couldn't complete your registration right now due to a system issue. Please try again in a moment, or reach out for help if the problem continues.",
+      };
+    }
+  };
+
+  const loginCustomer = async (
+    email: string,
+    pass: string
+  ): Promise<boolean> => {
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
       const result = loginCustomerAction
-        ? await loginCustomerAction(email, pass)
+        ? await loginCustomerAction(normalizedEmail, pass)
         : { success: true };
 
       if (result.success) {
+        const accountData: UserAccount = {
+          email: normalizedEmail,
+          role: 'customer',
+          storeName: '',
+        };
+
         setIsCustomer(true);
-        setCustomerAccount({ email, passwordHash: pass, storeName: '' });
+        setCustomerAccount(accountData);
+
+        try {
+          window.localStorage.setItem(
+            CUSTOMER_SESSION_KEY,
+            JSON.stringify(accountData)
+          );
+        } catch (storageErr) {
+          console.error('Failed to save customer session:', storageErr);
+        }
+
         return true;
       }
       return false;
@@ -358,6 +444,7 @@ export const StoreProvider: React.FC<{
         customerAccount,
         setIsOwner,
         setIsCustomer,
+        signOut,
         registerOwner,
         loginOwner,
         registerCustomer,
